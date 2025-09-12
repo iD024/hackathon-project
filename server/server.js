@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 // cors
 app.use(cors());
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://localhost:5173",
   optionsSuccessStatus: 200, // For legacy browser support
 };
 
@@ -35,6 +35,6 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Civic Sprint API is running!" });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
