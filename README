@@ -1,0 +1,49 @@
+# 🌍 Civic Pulse
+
+Civic Pulse is an **AI-powered civic engagement platform** that transforms local problems into **community-led solutions**.  
+Built for the [Hackathon Name] in 7 hours 🚀.
+
+---
+
+## ✨ Vision
+
+We want to foster **civic pride, accountability, and collaboration** by connecting citizens, volunteers, and sponsors on one transparent platform.  
+Our AI engine turns citizen reports into actionable missions, making communities **smarter, cleaner, and more connected**.
+
+---
+
+## 🛠 Core Functionality & Workflow
+
+1. **Report** → Citizens submit civic issues (photo + location).
+2. **Triage (AI)** → Our AI engine categorizes the issue, checks severity, and detects duplicates.
+3. **Resolve** → Volunteers or sponsored teams accept missions to fix the problem.
+4. **Reward** → Completed missions are verified, and impact is showcased on a public dashboard.
+
+---
+
+## 🤖 The AI Engine Roles
+
+- **Triage Officer (MVP)**: Analyzes images and classifies issues.
+- **Dispatcher (Stretch Goal)**: Recommends issues to the right volunteer team.
+- **Storyteller (Stretch Goal)**: Generates human-like narratives of resolved issues for public dashboards.
+
+---
+
+## 🖥️ Tech Stack
+
+- **Frontend**: React.js (with Google Maps integration)
+- **Backend**: Node.js + Express.js
+- **Database**: MongoDB (Mongoose ODM)
+- **AI Microservice**: Python (Flask/FastAPI) with external AI APIs
+- **Maps**: Google Maps JavaScript API (`@react-google-maps/api`)
+
+---
+
+## 🚀 Setup & Installation
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/iD024/hackathon-project.git
+cd hackathon-project
+```
