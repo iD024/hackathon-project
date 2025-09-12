@@ -1,7 +1,14 @@
+.map-view-wrapper {
+  flex-basis: 65%; /* Define its proportion of the screen width */
+  height: calc(
+    100vh - 90px
+  ); /* Give it an explicit height: 100% of viewport minus navbar and padding */
+  padding: 10px;
+}
+
 .map-container {
   height: 100%;
   width: 100%;
   border-radius: 8px;
-  overflow: hidden; /* Ensures the map corners are rounded */
   border: 1px solid #bdc3c7;
 }

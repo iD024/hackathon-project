@@ -1,8 +1,0 @@
-.map-view {
-  flex-basis: 65%; /* Map takes more space */
-  margin: 10px; /* Add margin for spacing */
-}
-
-.issue-feed {
-  flex-basis: 35%; /* Feed takes less space */
-}

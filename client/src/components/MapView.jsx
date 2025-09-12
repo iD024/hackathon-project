@@ -1,10 +1,9 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "../components/css/MapView.css"; // Make sure to import the CSS
-
-// Fix for default icon issue with Webpack
+import "../components/css/MapView.css";
 import L from "leaflet";
+
+// Standard Leaflet icon fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -13,26 +12,51 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
 });
 
-function MapView({ issues }) {
-  // Default center for the map (New York City)
-  const defaultPosition = [40.7128, -74.006];
+// Create a custom icon for the user's location
+const userLocationIcon = new L.Icon({
+  iconUrl:
+    "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiIgd2lkdGg9IjI0cHgiIGhlaWdodD0iMjRweCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzAzNjZGMiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9zdmc+",
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -12],
+});
+
+function MapView({ issues, userLocation }) {
+  const defaultPosition = [40.7128, -74.006]; // Fallback location
+  const mapCenter = userLocation
+    ? [userLocation.lat, userLocation.lng]
+    : defaultPosition;
 
   return (
-    <div className="map-view">
+    <div className="map-view-wrapper">
+      {/* Use a key to force re-render when mapCenter changes */}
       <MapContainer
-        center={defaultPosition}
-        zoom={13}
+        key={mapCenter.join("_")}
+        center={mapCenter}
+        zoom={14}
         className="map-container"
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+
+        {/* Marker for the user's current location */}
+        {userLocation && (
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={userLocationIcon}
+          >
+            <Popup>You are here</Popup>
+          </Marker>
+        )}
+
+        {/* Markers for all the reported issues */}
         {issues.map((issue) => (
           <Marker
             key={issue._id}
             position={[
-              issue.location.coordinates[1], // Leaflet uses [latitude, longitude]
+              issue.location.coordinates[1],
               issue.location.coordinates[0],
             ]}
           >

@@ -47,3 +47,11 @@
   background-color: #95a5a6;
   cursor: not-allowed;
 }
+
+.location-error {
+  font-size: 0.8rem;
+  color: #e74c3c;
+  text-align: center;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
