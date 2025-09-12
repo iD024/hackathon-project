@@ -1,4 +1,5 @@
 const Issue = require("../models/issue");
+const axios = require("axios"); // Import the axios library
 
 /**
  * @desc    Report a new civic issue
@@ -15,13 +16,27 @@ const reportIssue = async (req, res) => {
         .json({ message: "Description and location are required." });
     }
 
-    // The 'protect' middleware gives us the logged-in user via req.user
+    let issueCategory = "General Inquiry"; //
+
+    try {
+      const triageResponse = await axios.post("http://1227.0.0.1:5001/triage", {
+        description: description,
+      });
+
+      // Map the response from the AI service to our schema fields
+      issueCategory = triageResponse.data.category; // from Python service
+      issueSeverity = triageResponse.data.priority; // from Python service
+    } catch (aiError) {
+      console.error("AI Triage Service Error:", aiError.message);
+    }
+
     const newIssue = await Issue.create({
       description,
       location,
-      // Replace the mock user ID with the actual authenticated user's ID
       reportedBy: req.user._id,
-      photoUrl: "https://placehold.co/600x400/EEE/31343C?text=Civic+Issue", // Mock photo
+      photoUrl: "https://placehold.co/600x400/EEE/31343C?text=Civic+Issue",
+      aiCategory: issueCategory,
+      aiSeverity: issueSeverity,
     });
 
     res.status(201).json(newIssue);
@@ -40,7 +55,6 @@ const reportIssue = async (req, res) => {
  */
 const getIssues = async (req, res) => {
   try {
-    // Find all issues and sort by the most recent (`createdAt: -1`)
     const issues = await Issue.find().sort({ createdAt: -1 });
     res.status(200).json(issues);
   } catch (error) {
@@ -58,8 +72,6 @@ const getIssues = async (req, res) => {
  */
 const getMyIssues = async (req, res) => {
   try {
-    // The protect middleware gives us the user via req.user
-    // Find issues where 'reportedBy' matches the logged-in user's ID
     const issues = await Issue.find({ reportedBy: req.user._id });
     res.status(200).json(issues);
   } catch (error) {
