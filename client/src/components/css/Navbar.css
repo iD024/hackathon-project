@@ -4,10 +4,32 @@
   padding: 15px 30px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .navbar h1 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
+}
+
+.logout-btn {
+  position: absolute;
+  right: 30px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
 }
