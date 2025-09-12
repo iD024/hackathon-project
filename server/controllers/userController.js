@@ -46,6 +46,43 @@ const registerUser = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Auth user & get token (Login)
+ * @route   POST /api/v1/users/login
+ * @access  Public
+ */
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Please provide email and password" });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    // Check if user exists and password matches
+    // We're assuming the User model has a method `matchPassword` to compare the plain text password with the hashed one.
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    console.error("USER LOGIN ERROR:", error);
+    res.status(500).json({ message: "Server error during login" });
+  }
+};
+
 module.exports = {
   registerUser,
+  loginUser, // Export the new login function
 };

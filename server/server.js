@@ -1,12 +1,12 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-// const connectDB = require("./config/db"); // Assuming you have this file
+// const connectDB = require("./config/db");
 
 // routes
 const issueRoutes = require("../server/routes/IssueRoutes");
 // --- ADD THIS LINE ---
-const userRoutes = require("../server/routes/userRoutes"); // Import user routes
+const userRoutes = require("../server/routes/userRoutes");
 
 // loads env
 dotenv.config();
@@ -20,10 +20,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Mount routers
+// router
 app.use("/api/v1/issues", issueRoutes);
-// --- AND ADD THIS LINE ---
-app.use("/api/v1/users", userRoutes); // Mount user routes
+app.use("/api/v1/users", userRoutes);
 
 // cors
 app.use(cors());

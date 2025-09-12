@@ -3,24 +3,24 @@ const Issue = require("../models/issue");
 /**
  * @desc    Report a new civic issue
  * @route   POST /api/v1/issues
- * @access  Public (for now)
+ * @access  Private (now protected)
  */
 const reportIssue = async (req, res) => {
   try {
     const { description, location } = req.body;
 
-    
     if (!description || !location) {
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    // Mocking user and photo for now as requested
+    // The 'protect' middleware gives us the logged-in user via req.user
     const newIssue = await Issue.create({
       description,
       location,
-      reportedBy: "mock_user_id", // TODO: Replace with actual user ID from auth
+      // Replace the mock user ID with the actual authenticated user's ID
+      reportedBy: req.user._id,
       photoUrl: "https://placehold.co/600x400/EEE/31343C?text=Civic+Issue", // Mock photo
     });
 
