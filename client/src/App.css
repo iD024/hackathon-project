@@ -1,0 +1,13 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ecf0f1;
+}
+
+.home-container {
+  display: flex;
+  flex-grow: 1; /* Allows this container to fill available space */
+  padding: 15px;
+  overflow: hidden; /* Prevents scrollbars on the main container */
+}
