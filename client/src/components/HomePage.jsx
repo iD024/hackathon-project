@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import MapView from "../components/MapView";
+import MapView from "../components/MapView/MapView";
 import IssueFeed from "../components/IssueFeed";
 import SubmitIssueForm from "../components/SubmitIssueForm";
 import { getIssues } from "../services/apiService";
