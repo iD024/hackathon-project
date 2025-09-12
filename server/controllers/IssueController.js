@@ -8,15 +8,27 @@ const axios = require("axios"); // Import the axios library
  */
 const reportIssue = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
+    console.log("Request user:", req.user);
+    
     const { description, location } = req.body;
 
     if (!description || !location) {
+      console.log("Missing required fields - description:", !!description, "location:", !!location);
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    let issueCategory = "General Inquiry"; //
+    if (!req.user || !req.user._id) {
+      console.log("User not authenticated or missing user ID");
+      return res
+        .status(401)
+        .json({ message: "User authentication required." });
+    }
+
+    let issueCategory = "General Inquiry";
+    let issueSeverity = "Pending"; // Default value
 
     try {
       const triageResponse = await axios.post("http://127.0.0.1:5002/triage", {
@@ -30,20 +42,37 @@ const reportIssue = async (req, res) => {
       console.error("AI Triage Service Error:", aiError.message);
     }
 
-    const newIssue = await Issue.create({
+    console.log("Creating issue with data:", {
       description,
       location,
       reportedBy: req.user._id,
-      photoUrl: "https://placehold.co/600x400/EEE/31343C?text=Civic+Issue",
       aiCategory: issueCategory,
       aiSeverity: issueSeverity,
     });
 
+    // Validate location structure
+    if (!location.type || location.type !== 'Point' || !location.coordinates || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
+      console.log("Invalid location format:", location);
+      return res.status(400).json({ 
+        message: "Invalid location format. Expected GeoJSON Point with coordinates array." 
+      });
+    }
+
+    const newIssue = await Issue.create({
+      description,
+      location,
+      reportedBy: req.user._id,
+      aiCategory: issueCategory,
+      aiSeverity: issueSeverity,
+    });
+
+    console.log("Issue created successfully:", newIssue);
     res.status(201).json(newIssue);
   } catch (error) {
     console.error("ERROR REPORTING ISSUE:", error);
+    console.error("Error stack:", error.stack);
     res
-      .status(400)
+      .status(500)
       .json({ message: "Error reporting issue", error: error.message });
   }
 };
@@ -56,7 +85,7 @@ const reportIssue = async (req, res) => {
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()
-      .populate("reportedBy", "name email")
+      .populate('reportedBy', 'name email')
       .sort({ createdAt: -1 });
     res.status(200).json(issues);
   } catch (error) {
@@ -74,10 +103,8 @@ const getIssues = async (req, res) => {
  */
 const getMyIssues = async (req, res) => {
   try {
-    const issues = await Issue.find({ reportedBy: req.user._id }).populate(
-      "reportedBy",
-      "name email"
-    );
+    const issues = await Issue.find({ reportedBy: req.user._id })
+      .populate('reportedBy', 'name email');
     res.status(200).json(issues);
   } catch (error) {
     console.error("ERROR FETCHING USER ISSUES:", error);

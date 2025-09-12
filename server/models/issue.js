@@ -1,52 +1,53 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-  name: {
+const issueSchema = new mongoose.Schema({
+  description: {
     type: String,
-    required: [true, "Please add a name"],
+    required: [true, 'Please add a description of the issue'],
   },
-  email: {
+  location: {
+    // GeoJSON Point
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude] -- scary stuff lmao
+      required: true,
+    },
+  },
+  status: {
     type: String,
-    required: [true, "Please add an email"],
-    unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      "Please add a valid email",
-    ], // this thing too a while to understand ngl
+    enum: ['Reported', 'Assigned', 'Resolved'],
+    default: 'Reported',
   },
-  password: {
-    type: String,
-    required: [true, "Please add a password"],
-    minlength: 6,
-  },
-  reputation: {
-    type: Number,
-    default: 0,
+  reportedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  // these things gonna be edited by AI 
+  aiCategory: {
+    type: String,
+    default: 'Pending Analysis', // -- this gonna change
+  },
+  aiSeverity: {
+    type: String,
+    enum: ['Low', 'Medium', 'High', 'Critical', 'Pending'],
+    default: 'Pending',
+  },
+  aiIsDuplicateFlag: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// Mongoose pre-save hook to hash password before saving
-userSchema.pre("save", async function (next) {
-  // Only run this function if password was actually modified
-  if (!this.isModified("password")) {
-    return next();
-  }
+// scary stuff
+issueSchema.index({ location: '2dsphere' });
 
-  // SALTS HAHAHHA
-  const salt = await bcrypt.genSalt(10);
-  // hashing
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-// method to compare shit
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('Issue', issueSchema);
