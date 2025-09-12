@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import MapView from "../components/MapView";
+import MapView from "../components/MapView"; // Corrected path
 import IssueFeed from "../components/IssueFeed";
 import SubmitIssueForm from "../components/SubmitIssueForm";
 import { getIssues } from "../services/apiService";
@@ -31,7 +31,8 @@ function HomePage() {
 
   return (
     <main className="home-container">
-      <MapView />
+      {/* Pass issues to the MapView component */}
+      <MapView issues={issues} />
       <div className="sidebar">
         <SubmitIssueForm onIssueSubmitted={fetchIssues} />
         <IssueFeed issues={issues} />
