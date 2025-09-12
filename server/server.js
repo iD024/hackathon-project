@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-// const connectDB = require("./config/db");
+const connectDB = require("../server/config/db");
 
 // routes
 const issueRoutes = require("../server/routes/IssueRoutes");
@@ -12,7 +12,7 @@ const userRoutes = require("../server/routes/userRoutes");
 dotenv.config();
 
 // connect to database
-// connectDB();
+connectDB();
 
 const app = express();
 
@@ -20,12 +20,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// cors
+app.use(cors());
+
 // router
 app.use("/api/v1/issues", issueRoutes);
 app.use("/api/v1/users", userRoutes);
-
-// cors
-app.use(cors());
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Civic Sprint API is running!" });
