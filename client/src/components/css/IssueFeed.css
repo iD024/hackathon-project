@@ -1,0 +1,74 @@
+.issue-feed-container {
+  border: 2px dashed #bdc3c7;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px;
+  background-color: #f8f9fa;
+  flex-grow: 1; /* Allows it to fill remaining space in sidebar */
+  overflow-y: auto; /* Add scroll for long lists */
+}
+
+.placeholder-style {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #7f8c8d;
+}
+
+.issue-feed-container h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #34495e;
+}
+
+.issue-list {
+  list-style: none;
+  padding: 0;
+}
+
+.issue-item {
+  background-color: #ffffff;
+  border: 1px solid #ecf0f1;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.issue-description {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.issue-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-reported {
+  background-color: #e74c3c;
+  color: white;
+}
+.status-in_progress {
+  background-color: #f39c12;
+  color: white;
+}
+.status-resolved {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.issue-date {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  text-align: right;
+}

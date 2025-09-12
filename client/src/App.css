@@ -11,3 +11,9 @@
   padding: 15px;
   overflow: hidden; /* Prevents scrollbars on the main container */
 }
+
+.home-container {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}

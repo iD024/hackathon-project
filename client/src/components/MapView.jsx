@@ -1,5 +1,6 @@
 import React from "react";
-import "./Placeholder.css";
+
+import "../components/css/Placeholder.css";
 
 function MapView() {
   return (

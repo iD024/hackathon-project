@@ -1,0 +1,49 @@
+.submit-form-container {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-basis: 35%; /* Match the issue feed width */
+  max-height: 250px; /* Give it a max height */
+}
+
+.submit-form-container h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.submit-form-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.submit-form-container textarea {
+  min-height: 80px;
+  padding: 10px;
+  font-family: inherit;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  resize: vertical;
+}
+
+.submit-form-container button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #27ae60;
+  color: white;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-form-container button:hover {
+  background-color: #2ecc71;
+}
+
+.submit-form-container button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}

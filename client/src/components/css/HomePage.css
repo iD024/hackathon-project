@@ -1,0 +1,6 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 35%;
+  max-height: calc(100vh - 100px); /* Adjust based on navbar height */
+}
