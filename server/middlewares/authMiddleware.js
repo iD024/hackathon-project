@@ -18,7 +18,7 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
 
       // Verify the token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || "TokenKey");
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Find the user by the ID in the token payload and attach it to the request object
       // We exclude the password from the user object for security
