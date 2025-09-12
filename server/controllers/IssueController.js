@@ -19,7 +19,7 @@ const reportIssue = async (req, res) => {
     let issueCategory = "General Inquiry"; //
 
     try {
-      const triageResponse = await axios.post("http://1227.0.0.1:5001/triage", {
+      const triageResponse = await axios.post("http://127.0.0.1:5002/triage", {
         description: description,
       });
 

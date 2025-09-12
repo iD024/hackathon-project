@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api"; // Make sure this port matches your backend server
+const API_URL = "http://localhost:5001/api"; // Make sure this port matches your backend server
 
 export const getIssues = async () => {
   try {

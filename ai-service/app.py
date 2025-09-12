@@ -1,4 +1,3 @@
-
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -9,11 +8,8 @@ app = Flask(__name__)
 
 def analyze_issue(description):
     desc_lower = description.lower()
-
     """
-    
     NOTE THIS IS MOCK AI 
-    
     """
     # -------------- category ----------------------
     category = "General Inquiry" # Default category
@@ -44,6 +40,7 @@ def analyze_issue(description):
 @app.route("/triage", methods=["POST"])
 # API to get issue and other stuff
 def triage_issue():
+
     # Ensure the request contains JSON data
     if not request.is_json:
         return jsonify({"error": "Request must be JSON"}), 400
@@ -62,5 +59,5 @@ def triage_issue():
     return jsonify(analysis_result), 200
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5001))
+    port = int(os.environ.get("PORT", 5002)) # Changed from 5001 to 5002
     app.run(debug=True, port=port)

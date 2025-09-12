@@ -22,6 +22,10 @@ app.use(express.urlencoded({ extended: false }));
 
 // cors
 app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: 200, // For legacy browser support
+};
 
 // router
 app.use("/api/v1/issues", issueRoutes);
