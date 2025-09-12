@@ -56,7 +56,7 @@ const reportIssue = async (req, res) => {
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()
-      .populate('reportedBy', 'name email')
+      .populate("reportedBy", "name email")
       .sort({ createdAt: -1 });
     res.status(200).json(issues);
   } catch (error) {
@@ -74,8 +74,10 @@ const getIssues = async (req, res) => {
  */
 const getMyIssues = async (req, res) => {
   try {
-    const issues = await Issue.find({ reportedBy: req.user._id })
-      .populate('reportedBy', 'name email');
+    const issues = await Issue.find({ reportedBy: req.user._id }).populate(
+      "reportedBy",
+      "name email"
+    );
     res.status(200).json(issues);
   } catch (error) {
     console.error("ERROR FETCHING USER ISSUES:", error);
