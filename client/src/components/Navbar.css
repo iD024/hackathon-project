@@ -1,0 +1,14 @@
+.navbar {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 15px 30px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+    
