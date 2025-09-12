@@ -1,0 +1,22 @@
+.placeholder-container {
+  border: 2px dashed #bdc3c7;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px;
+  background-color: #f8f9fa;
+  text-align: center;
+  color: #7f8c8d;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-view {
+  flex-basis: 65%; /* Map takes more space */
+}
+
+.issue-feed {
+  flex-basis: 35%; /* Feed takes less space */
+}
