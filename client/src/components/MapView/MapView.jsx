@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -6,6 +6,7 @@ import {
   InfoWindowF,
 } from "@react-google-maps/api";
 
+// --- STYLES (Moved outside for clarity) ---
 const containerStyle = {
   width: "100%",
   height: "100%",
@@ -19,13 +20,7 @@ const wrapperStyle = {
   padding: "10px",
 };
 
-// Custom icon for the user's location
-const userLocationIcon = {
-  url: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiIgd2lkdGg9IjM2cHgiIGhlaWdodD0iMzZweCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzQyODVGNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9zdmc+",
-  scaledSize: new window.google.maps.Size(24, 24),
-  anchor: new window.google.maps.Point(12, 12),
-};
-
+// --- COMPONENT ---
 function MapView({ issues, userLocation }) {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
@@ -34,22 +29,37 @@ function MapView({ issues, userLocation }) {
 
   const [activeMarker, setActiveMarker] = useState(null);
 
-  const handleActiveMarker = (markerId) => {
-    if (markerId === activeMarker) {
-      return;
+  // --- ICONS (Memoized for performance) ---
+  // We use useMemo to create these icons only once, AFTER the map script has loaded.
+  const userLocationIcon = useMemo(() => {
+    if (isLoaded) {
+      return {
+        url: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiIgd2lkdGg9IjM2cHgiIGhlaWdodD0iMzZweCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzQyODVGNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9zdmc+",
+        scaledSize: new window.google.maps.Size(24, 24),
+        anchor: new window.google.maps.Point(12, 12),
+      };
     }
+    return null;
+  }, [isLoaded]);
+
+  const handleActiveMarker = (markerId) => {
     setActiveMarker(markerId);
   };
 
-  const defaultCenter = { lat: 26.853, lng: 75.66 }; // Default center
+  const defaultCenter = { lat: 26.853, lng: 75.66 }; // Jaipur area
   const mapCenter = userLocation || defaultCenter;
 
+  // --- RENDER LOGIC ---
   if (loadError) {
-    return <div>Error loading maps. Please check your API key.</div>;
+    return (
+      <div>
+        Error loading maps. Please ensure your API key is correct and enabled.
+      </div>
+    );
   }
 
   if (!isLoaded) {
-    return <div>Loading Map...</div>;
+    return <div style={wrapperStyle}>Loading Map...</div>;
   }
 
   return (
@@ -57,14 +67,15 @@ function MapView({ issues, userLocation }) {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
-        zoom={userLocation ? 15 : 10}
+        zoom={userLocation ? 15 : 11}
         options={{
           streetViewControl: false,
           mapTypeControl: false,
+          fullscreenControl: false,
         }}
       >
         {/* User's Location Marker */}
-        {userLocation && (
+        {userLocation && userLocationIcon && (
           <MarkerF position={userLocation} icon={userLocationIcon} />
         )}
 
@@ -81,7 +92,7 @@ function MapView({ issues, userLocation }) {
             {activeMarker === issue._id && (
               <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
                 <div>
-                  <b>{issue.aiCategory}</b>
+                  <h4>{issue.aiCategory}</h4>
                   <p>{issue.description}</p>
                 </div>
               </InfoWindowF>
