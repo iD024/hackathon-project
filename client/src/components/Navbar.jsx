@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import logo1 from "../assets/logo1.png";
 import "./css/Navbar.css";
 
 function Navbar() {
@@ -12,7 +13,10 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <h1>Civic Pulse</h1>
+      <div className="navbar-brand">
+        <img src={logo1} alt="Civic Pulse" className="navbar-logo" />
+        <h1>Civic Pulse</h1>
+      </div>
       {/* Show logout button if a token exists */}
       {localStorage.getItem("civicPulseToken") && (
         <button onClick={handleLogout} className="logout-btn">

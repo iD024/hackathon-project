@@ -22,36 +22,61 @@ function LoginPage() {
 
   return (
     <div className="auth-container">
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Login</h2>
-        {error && <p className="error-message">{error}</p>}
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+      <div className="auth-card card-purple">
+        <div className="auth-header">
+          <div className="auth-icon">🔐</div>
+          <h2>Welcome Back</h2>
+          <p className="auth-subtitle">Sign in to your Civic Pulse account</p>
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Login
-        </button>
-        <p className="auth-switch">
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
-      </form>
+        
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              {error}
+            </div>
+          )}
+          
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              className="input-purple"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              className="input-purple"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          
+          <button type="submit" className="btn-purple auth-btn">
+            <span className="btn-icon">🚀</span>
+            Sign In
+          </button>
+          
+          <div className="auth-divider">
+            <span>New to Civic Pulse?</span>
+          </div>
+          
+          <Link to="/register" className="btn-outline auth-link">
+            Create Account
+          </Link>
+        </form>
+      </div>
     </div>
   );
 }

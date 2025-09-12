@@ -1,6 +1,12 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  flex-basis: 35%;
-  max-height: calc(100vh - 100px); /* Adjust based on navbar height */
+  flex-basis: 40%;
+  max-height: calc(100vh - 100px);
+  gap: 15px;
+}
+
+.map-container {
+  flex: 1;
+  min-height: 400px;
 }
