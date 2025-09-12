@@ -18,14 +18,26 @@ function IssueFeed({ issues }) {
         {issues.map((issue) => (
           <li key={issue._id} className="issue-item">
             <p className="issue-description">{issue.description}</p>
-            <span
-              className={`issue-status status-${issue.status.toLowerCase()}`}
-            >
-              {issue.status}
-            </span>
-            <small className="issue-date">
-              {new Date(issue.createdAt).toLocaleString()}
-            </small>
+            <div className="issue-metadata">
+              <span
+                className={`issue-status status-${issue.status.toLowerCase()}`}
+              >
+                {issue.status}
+              </span>
+              <span
+                className={`issue-priority priority-${issue.aiSeverity?.toLowerCase() || 'pending'}`}
+              >
+                {issue.aiSeverity || 'Pending'} Priority
+              </span>
+            </div>
+            <div className="issue-details">
+              <small className="issue-reporter">
+                Reported by: {issue.reportedBy?.name || 'Anonymous'}
+              </small>
+              <small className="issue-date">
+                {new Date(issue.createdAt).toLocaleString()}
+              </small>
+            </div>
           </li>
         ))}
       </ul>

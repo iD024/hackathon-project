@@ -65,10 +65,58 @@
   color: white;
 }
 
-.issue-date {
-  display: block;
+/* Issue metadata container */
+.issue-metadata {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+/* Priority styling */
+.issue-priority {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.priority-high {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.priority-medium {
+  background-color: #f39c12;
+  color: white;
+}
+
+.priority-low {
+  background-color: #27ae60;
+  color: white;
+}
+
+.priority-pending {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Issue details container */
+.issue-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 8px;
   font-size: 0.8rem;
   color: #7f8c8d;
-  text-align: right;
+}
+
+.issue-reporter {
+  font-weight: 500;
+}
+
+.issue-date {
+  font-style: italic;
 }

@@ -91,9 +91,48 @@ function MapView({ issues, userLocation }) {
           >
             {activeMarker === issue._id && (
               <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
-                <div>
-                  <h4>{issue.aiCategory}</h4>
-                  <p>{issue.description}</p>
+                <div style={{ minWidth: '200px', maxWidth: '300px' }}>
+                  <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>
+                    {issue.aiCategory || 'General Issue'}
+                  </h4>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
+                    {issue.description}
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      backgroundColor: issue.status === 'Reported' ? '#e74c3c' : 
+                                     issue.status === 'Assigned' ? '#f39c12' : '#2ecc71',
+                      color: 'white'
+                    }}>
+                      {issue.status}
+                    </span>
+                    <span style={{
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      backgroundColor: issue.aiSeverity === 'High' ? '#e74c3c' :
+                                     issue.aiSeverity === 'Medium' ? '#f39c12' :
+                                     issue.aiSeverity === 'Low' ? '#27ae60' : '#95a5a6',
+                      color: 'white'
+                    }}>
+                      {issue.aiSeverity || 'Pending'} Priority
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#7f8c8d' }}>
+                    <div style={{ marginBottom: '4px' }}>
+                      <strong>Reported by:</strong> {issue.reportedBy?.name || 'Anonymous'}
+                    </div>
+                    <div>
+                      <strong>Date:</strong> {new Date(issue.createdAt).toLocaleString()}
+                    </div>
+                  </div>
                 </div>
               </InfoWindowF>
             )}
