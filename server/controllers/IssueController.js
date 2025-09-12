@@ -51,7 +51,27 @@ const getIssues = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get logged in user's issues
+ * @route   GET /api/v1/issues/my-issues
+ * @access  Private
+ */
+const getMyIssues = async (req, res) => {
+  try {
+    // The protect middleware gives us the user via req.user
+    // Find issues where 'reportedBy' matches the logged-in user's ID
+    const issues = await Issue.find({ reportedBy: req.user._id });
+    res.status(200).json(issues);
+  } catch (error) {
+    console.error("ERROR FETCHING USER ISSUES:", error);
+    res
+      .status(400)
+      .json({ message: "Error fetching user issues", error: error.message });
+  }
+};
+
 module.exports = {
   reportIssue,
   getIssues,
+  getMyIssues,
 };
