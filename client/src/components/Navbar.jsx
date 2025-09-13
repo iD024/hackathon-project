@@ -25,6 +25,7 @@ function Navbar() {
           <>
             <Link to="/teams">Teams</Link>
             <Link to="/resolved">Resolved Issues</Link>
+            <Link to="/stats">Statistics</Link>
           </>
         )}
       </div>

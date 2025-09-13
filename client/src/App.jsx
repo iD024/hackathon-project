@@ -7,6 +7,7 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import TeamPage from "./components/TeamPage";
 import ResolvedIssues from "./components/ResolvedIssues";
+import StatsPage from "./components/StatsPage";
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/teams" element={<TeamPage />} />
         <Route path="/resolved" element={<ResolvedIssues />} />
+        <Route path="/stats" element={<StatsPage />} />
       </Routes>
     </div>
   );

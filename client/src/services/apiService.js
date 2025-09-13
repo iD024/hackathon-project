@@ -50,7 +50,9 @@ export const getIssues = async () => {
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    return await response.json();
+    const issues = await response.json();
+    // Filter out resolved issues from the main feed
+    return issues.filter((issue) => issue.status !== "Resolved");
   } catch (error) {
     console.error("Failed to fetch issues:", error);
     return [];
@@ -344,4 +346,25 @@ export const getResolvedIssues = async () => {
     console.error("Failed to fetch resolved issues:", error);
     return [];
   }
+};
+
+export default {
+  loginUser,
+  registerUser,
+  getIssues,
+  createIssue,
+  getUsers,
+  getTeams,
+  createTeam,
+  addMemberToTeam,
+  removeMemberFromTeam,
+  leaveTeam,
+  disbandTeam,
+  assignIssueToTeam,
+  removeIssueFromTeam,
+  resolveIssue,
+  sendInvitation,
+  getNotifications,
+  respondToInvitation,
+  getResolvedIssues
 };
