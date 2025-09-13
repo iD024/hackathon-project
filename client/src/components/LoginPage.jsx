@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { loginUser } from "../services/apiService";
 import "./css/AuthForm.css";
 
@@ -8,13 +8,16 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     const result = await loginUser({ email, password });
     if (result && result.token) {
-      navigate("/home"); // Redirect to homepage on success
+      // Redirect to the page they were trying to access, or home page
+      const from = location.state?.from?.pathname || "/home";
+      navigate(from, { replace: true });
     } else {
       setError("Invalid email or password. Please try again.");
     }
@@ -28,7 +31,7 @@ function LoginPage() {
           <h2>Welcome Back</h2>
           <p className="auth-subtitle">Sign in to your Civic Pulse account</p>
         </div>
-        
+
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && (
             <div className="error-message">
@@ -36,7 +39,7 @@ function LoginPage() {
               {error}
             </div>
           )}
-          
+
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -49,7 +52,7 @@ function LoginPage() {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -62,16 +65,16 @@ function LoginPage() {
               required
             />
           </div>
-          
+
           <button type="submit" className="btn-purple auth-btn">
             <span className="btn-icon">🚀</span>
             Sign In
           </button>
-          
+
           <div className="auth-divider">
             <span>New to Civic Pulse?</span>
           </div>
-          
+
           <Link to="/register" className="btn-outline auth-link">
             Create Account
           </Link>

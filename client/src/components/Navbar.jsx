@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import logo1 from "../assets/logo1.png";
 import Notifications from "./Notifications";
 import "./css/Navbar.css";
@@ -7,6 +8,19 @@ import "./css/Navbar.css";
 function Navbar() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [userType, setUserType] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("civicPulseToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserType(decoded.userType);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("civicPulseToken"); // Clear the token
@@ -24,7 +38,9 @@ function Navbar() {
         {localStorage.getItem("civicPulseToken") && (
           <>
             <Link to="/issues">All Issues</Link>
-            <Link to="/teams">Teams</Link>
+            <Link to="/businesses">Businesses</Link>
+            {userType === "business" && <Link to="/business">My Business</Link>}
+            {userType === "citizen" && <Link to="/teams">Teams</Link>}
             <Link to="/resolved">Resolved</Link>
             <Link to="/stats">Statistics</Link>
           </>

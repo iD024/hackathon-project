@@ -8,7 +8,7 @@ const generateToken = require("../controllers/jwtgenration");
  */
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, userType } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -28,6 +28,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password,
+      userType: userType || "citizen",
     });
 
     if (user) {
@@ -35,7 +36,8 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        userType: user.userType,
+        token: generateToken(user._id, user.userType),
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -71,7 +73,8 @@ const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        userType: user.userType,
+        token: generateToken(user._id, user.userType),
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });

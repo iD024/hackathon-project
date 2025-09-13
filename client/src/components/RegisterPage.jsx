@@ -7,13 +7,14 @@ function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [userType, setUserType] = useState("citizen");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const result = await registerUser({ name, email, password });
+    const result = await registerUser({ name, email, password, userType });
     if (result && result.token) {
       navigate("/home"); // Redirect to homepage on success
     } else {
@@ -27,9 +28,11 @@ function RegisterPage() {
         <div className="auth-header">
           <div className="auth-icon">✨</div>
           <h2>Join Civic Pulse</h2>
-          <p className="auth-subtitle">Create your account and start making a difference</p>
+          <p className="auth-subtitle">
+            Create your account and start making a difference
+          </p>
         </div>
-        
+
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && (
             <div className="error-message">
@@ -37,7 +40,7 @@ function RegisterPage() {
               {error}
             </div>
           )}
-          
+
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
             <input
@@ -50,7 +53,7 @@ function RegisterPage() {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -63,7 +66,7 @@ function RegisterPage() {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -77,16 +80,35 @@ function RegisterPage() {
               minLength="6"
             />
           </div>
-          
+
+          <div className="form-group">
+            <label htmlFor="userType">Account Type</label>
+            <select
+              id="userType"
+              className="input-purple"
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              required
+            >
+              <option value="citizen">Citizen</option>
+              <option value="business">Business</option>
+            </select>
+            <small className="form-hint">
+              {userType === "business"
+                ? "Business accounts can create business listings and manage their presence in the community."
+                : "Citizen accounts can report issues, join teams, and participate in community activities."}
+            </small>
+          </div>
+
           <button type="submit" className="btn-purple auth-btn">
             <span className="btn-icon">🎉</span>
             Create Account
           </button>
-          
+
           <div className="auth-divider">
             <span>Already have an account?</span>
           </div>
-          
+
           <Link to="/login" className="btn-outline auth-link">
             Sign In
           </Link>

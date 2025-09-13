@@ -39,6 +39,9 @@ function LandingPage() {
             <Link to="/register" className="btn-outline">
               Create Account
             </Link>
+            <Link to="/submit-issue" className="btn-secondary btn-large">
+              Report Issue
+            </Link>
           </div>
         </div>
         <div className="hero-visual">

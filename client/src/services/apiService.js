@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:5000/api/v1";
+import { uploadMultipleToFirebase } from "./firebaseUpload";
 
 // Helper function to handle storing token
 const handleAuthResponse = (data) => {
@@ -62,24 +63,37 @@ export const getIssues = async () => {
 export const createIssue = async (issueData, files = []) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
-    const formData = new FormData();
+    // Upload files to Firebase first if any
+    let imageUrls = [];
+    if (files && files.length > 0) {
+      try {
+        imageUrls = await uploadMultipleToFirebase(files, "issues");
+        console.log("Files uploaded to Firebase:", imageUrls);
+      } catch (uploadError) {
+        console.error("Error uploading files to Firebase:", uploadError);
+        throw new Error("Failed to upload images");
+      }
+    }
 
-    // Add issue data as JSON string
-    formData.append("title", issueData.title);
-    formData.append("description", issueData.description);
-    formData.append("location", JSON.stringify(issueData.location));
+    // Prepare the request body
+    const requestBody = {
+      title: issueData.title,
+      description: issueData.description,
+      location: issueData.location,
+      images: imageUrls,
+    };
 
-    // Add files if any
-    files.forEach((file) => {
-      formData.append("photos", file);
-    });
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${API_URL}/issues`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
+      headers,
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -358,6 +372,131 @@ export const resolveIssue = async (issueId) => {
   }
 };
 
+// Business API functions
+export const createBusiness = async (businessData, files = []) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const formData = new FormData();
+
+    // Add business data
+    Object.keys(businessData).forEach((key) => {
+      if (businessData[key] !== null && businessData[key] !== undefined) {
+        formData.append(key, businessData[key]);
+      }
+    });
+
+    // Add files if any
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    const response = await fetch(`${API_URL}/businesses`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to create business:", error);
+    throw error;
+  }
+};
+
+export const getBusinesses = async () => {
+  try {
+    const response = await fetch(`${API_URL}/businesses`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch businesses:", error);
+    return [];
+  }
+};
+
+export const getMyBusiness = async () => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/businesses/owner/my-business`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch my business:", error);
+    return null;
+  }
+};
+
+export const updateBusiness = async (businessData, files = []) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const formData = new FormData();
+
+    // Add business data
+    Object.keys(businessData).forEach((key) => {
+      if (businessData[key] !== null && businessData[key] !== undefined) {
+        formData.append(key, businessData[key]);
+      }
+    });
+
+    // Add files if any
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    const response = await fetch(`${API_URL}/businesses`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to update business:", error);
+    throw error;
+  }
+};
+
+export const deleteBusiness = async () => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/businesses`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to delete business:", error);
+    throw error;
+  }
+};
+
 export default {
   loginUser,
   registerUser,
@@ -377,4 +516,9 @@ export default {
   getNotifications,
   respondToInvitation,
   getResolvedIssues,
+  createBusiness,
+  getBusinesses,
+  getMyBusiness,
+  updateBusiness,
+  deleteBusiness,
 };

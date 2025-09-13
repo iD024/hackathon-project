@@ -111,7 +111,7 @@
 }
 
 .auth-divider::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 0;
@@ -134,17 +134,26 @@
   .auth-container {
     padding: 1rem;
   }
-  
+
   .auth-card {
     max-width: 100%;
   }
-  
+
   .auth-header h2 {
     font-size: 1.75rem;
   }
-  
+
   .auth-icon {
     font-size: 3rem;
     padding: 1rem;
   }
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--blue-600);
+  opacity: 0.8;
+  line-height: 1.4;
 }

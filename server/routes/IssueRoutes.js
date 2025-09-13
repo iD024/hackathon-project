@@ -6,20 +6,13 @@ const {
   getResolvedIssues,
 } = require("../controllers/IssueController");
 const { protect } = require("../middlewares/authMiddleware");
-const upload = require("../middleware/upload");
 
 const router = express.Router();
 
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// Handle file uploads for issue creation
-router.route("/")
-  .get(getIssues)
-  .post(
-    protect,
-    upload.array('photos', 3), // Max 3 files
-    reportIssue
-  );
+// Issue creation (no file upload middleware needed - files uploaded to Firebase by frontend)
+router.route("/").get(getIssues).post(reportIssue);
 
 module.exports = router;

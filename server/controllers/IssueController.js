@@ -1,5 +1,6 @@
 const Issue = require("../models/issue");
 const axios = require("axios"); // Import the axios library
+const { uploadMultipleToFirebase } = require("../services/firebaseUpload");
 
 /**
  * @desc    Report a new civic issue
@@ -9,33 +10,24 @@ const axios = require("axios"); // Import the axios library
 const reportIssue = async (req, res) => {
   try {
     console.log("Request body:", req.body);
-    console.log("Request files:", req.files);
     console.log("Request user:", req.user);
-    
-    // Parse the location from the form data
-    let location;
-    try {
-      location = JSON.parse(req.body.location);
-    } catch (e) {
-      console.error("Error parsing location:", e);
-      return res.status(400).json({ message: "Invalid location format." });
-    }
-    
-    const { title, description } = req.body;
+
+    const { title, description, location, images } = req.body;
 
     if (!description || !location) {
-      console.log("Missing required fields - description:", !!description, "location:", !!location);
+      console.log(
+        "Missing required fields - description:",
+        !!description,
+        "location:",
+        !!location
+      );
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    if (!req.user || !req.user._id) {
-      console.log("User not authenticated or missing user ID");
-      return res
-        .status(401)
-        .json({ message: "User authentication required." });
-    }
+    // Allow anonymous issue creation - user is optional
+    const reportedBy = req.user ? req.user._id : null;
 
     let issueCategory = "General Inquiry";
     let issueSeverity = "Pending"; // Default value
@@ -56,28 +48,35 @@ const reportIssue = async (req, res) => {
       title,
       description,
       location,
-      reportedBy: req.user._id,
+      reportedBy,
       aiCategory: issueCategory,
       aiSeverity: issueSeverity,
     });
 
     // Validate location structure
-    if (!location.type || location.type !== 'Point' || !location.coordinates || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
+    if (
+      !location.type ||
+      location.type !== "Point" ||
+      !location.coordinates ||
+      !Array.isArray(location.coordinates) ||
+      location.coordinates.length !== 2
+    ) {
       console.log("Invalid location format:", location);
-      return res.status(400).json({ 
-        message: "Invalid location format. Expected GeoJSON Point with coordinates array." 
+      return res.status(400).json({
+        message:
+          "Invalid location format. Expected GeoJSON Point with coordinates array.",
       });
     }
 
-    // Get file paths if files were uploaded
-    const images = req.files ? req.files.map(file => file.path) : [];
+    // Use images from request body (already uploaded to Firebase by frontend)
+    const imageUrls = images || [];
 
     const newIssue = await Issue.create({
       title,
       description,
       location,
-      images,
-      reportedBy: req.user._id,
+      images: imageUrls,
+      reportedBy,
       aiCategory: issueCategory,
       aiSeverity: issueSeverity,
     });
@@ -101,7 +100,7 @@ const reportIssue = async (req, res) => {
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()
-      .populate('reportedBy', 'name email')
+      .populate("reportedBy", "name email")
       .sort({ createdAt: -1 });
     res.status(200).json(issues);
   } catch (error) {
@@ -119,8 +118,10 @@ const getIssues = async (req, res) => {
  */
 const getMyIssues = async (req, res) => {
   try {
-    const issues = await Issue.find({ reportedBy: req.user._id })
-      .populate('reportedBy', 'name email');
+    const issues = await Issue.find({ reportedBy: req.user._id }).populate(
+      "reportedBy",
+      "name email"
+    );
     res.status(200).json(issues);
   } catch (error) {
     console.error("ERROR FETCHING USER ISSUES:", error);
@@ -137,15 +138,16 @@ const getMyIssues = async (req, res) => {
  */
 const getResolvedIssues = async (req, res) => {
   try {
-    const resolvedIssues = await Issue.find({ status: 'Resolved' })
-      .populate('reportedBy', 'name email')
+    const resolvedIssues = await Issue.find({ status: "Resolved" })
+      .populate("reportedBy", "name email")
       .sort({ updatedAt: -1 });
     res.status(200).json(resolvedIssues);
   } catch (error) {
     console.error("ERROR FETCHING RESOLVED ISSUES:", error);
-    res
-      .status(400)
-      .json({ message: "Error fetching resolved issues", error: error.message });
+    res.status(400).json({
+      message: "Error fetching resolved issues",
+      error: error.message,
+    });
   }
 };
 

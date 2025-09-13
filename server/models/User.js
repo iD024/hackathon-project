@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please add a password"],
     minlength: 6,
   },
+  userType: {
+    type: String,
+    enum: ['citizen', 'business'],
+    default: 'citizen',
+  },
   reputation: {
     type: Number,
     default: 0,

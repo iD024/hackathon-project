@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const issueSchema = new mongoose.Schema({
   title: {
@@ -7,13 +7,13 @@ const issueSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: [true, 'Please add a description of the issue'],
+    required: [true, "Please add a description of the issue"],
   },
   location: {
     // GeoJSON Point
     type: {
       type: String,
-      enum: ['Point'],
+      enum: ["Point"],
       required: true,
     },
     coordinates: {
@@ -23,35 +23,39 @@ const issueSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Reported', 'Assigned', 'Resolved'],
-    default: 'Reported',
+    enum: ["Reported", "Assigned", "Resolved"],
+    default: "Reported",
   },
   reportedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+    ref: "User",
+    required: false, // Allow anonymous issue creation
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  // these things gonna be edited by AI 
+  // these things gonna be edited by AI
   aiCategory: {
     type: String,
-    default: 'Pending Analysis', // -- this gonna change
+    default: "Pending Analysis", // -- this gonna change
   },
   aiSeverity: {
     type: String,
-    enum: ['Low', 'Medium', 'High', 'Critical', 'Pending'],
-    default: 'Pending',
+    enum: ["Low", "Medium", "High", "Critical", "Pending"],
+    default: "Pending",
   },
   aiIsDuplicateFlag: {
     type: Boolean,
     default: false,
   },
+  images: {
+    type: [String], // Array of image URLs
+    default: [],
+  },
 });
 
 // scary stuff
-issueSchema.index({ location: '2dsphere' });
+issueSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model('Issue', issueSchema);
+module.exports = mongoose.model("Issue", issueSchema);

@@ -5,6 +5,14 @@ const Issue = require("../models/issue");
 exports.createTeam = async (req, res) => {
   const { name } = req.body;
   try {
+    // Check if user is a business account
+    const user = await User.findById(req.user.id);
+    if (user.userType === "business") {
+      return res.status(403).json({
+        message: "Business accounts cannot create or join teams",
+      });
+    }
+
     const team = new Team({
       name,
       leader: req.user.id,
@@ -47,6 +55,13 @@ exports.addMember = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if user is a business account
+    if (user.userType === "business") {
+      return res.status(403).json({
+        message: "Business accounts cannot join teams",
+      });
     }
 
     const isLeader = await Team.findOne({ leader: userId });
@@ -167,7 +182,7 @@ exports.assignIssueToTeam = async (req, res) => {
     // Update issue status to assigned
     issue.status = "Assigned";
     await issue.save();
-    
+
     team.issue = issueId;
     await team.save();
     res.json(team);
@@ -213,7 +228,7 @@ exports.resolveIssue = async (req, res) => {
     console.log("Resolving issue for team:", teamId);
     console.log("User ID:", req.user.id);
 
-    const team = await Team.findById(teamId).populate('issue');
+    const team = await Team.findById(teamId).populate("issue");
     if (!team) {
       console.log("Team not found");
       return res.status(404).json({ message: "Team not found" });
@@ -231,7 +246,9 @@ exports.resolveIssue = async (req, res) => {
 
     if (!team.issue) {
       console.log("No issue assigned to team");
-      return res.status(400).json({ message: "No issue assigned to this team" });
+      return res
+        .status(400)
+        .json({ message: "No issue assigned to this team" });
     }
 
     console.log("Resolving issue:", team.issue._id);
@@ -241,7 +258,7 @@ exports.resolveIssue = async (req, res) => {
     // Remove the issue from the team so they can take on new issues
     team.issue = null;
     await team.save();
-    
+
     console.log("Issue resolved successfully");
     res.json(team);
   } catch (error) {

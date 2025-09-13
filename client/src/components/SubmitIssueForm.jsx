@@ -1,7 +1,12 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
-import { ArrowUpTrayIcon, XMarkIcon, PhotoIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowUpTrayIcon,
+  XMarkIcon,
+  PhotoIcon,
+} from "@heroicons/react/24/outline";
 import "../components/css/SubmitIssueForm.css";
 
 function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
@@ -11,38 +16,39 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Filter to only allow images and limit to 3 files
     const imageFiles = files
-      .filter(file => file.type.startsWith('image/'))
+      .filter((file) => file.type.startsWith("image/"))
       .slice(0, 3 - selectedFiles.length);
-    
+
     if (imageFiles.length === 0) return;
-    
+
     // Create previews for the new files
-    const newPreviews = imageFiles.map(file => ({
+    const newPreviews = imageFiles.map((file) => ({
       id: URL.createObjectURL(file),
       file,
-      name: file.name
+      name: file.name,
     }));
-    
-    setSelectedFiles(prev => [...prev, ...imageFiles]);
-    setFilePreviews(prev => [...prev, ...newPreviews]);
+
+    setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    setFilePreviews((prev) => [...prev, ...newPreviews]);
   };
 
   const removeFile = (index) => {
     const newFiles = [...selectedFiles];
     const newPreviews = [...filePreviews];
-    
+
     // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(newPreviews[index].id);
-    
+
     newFiles.splice(index, 1);
     newPreviews.splice(index, 1);
-    
+
     setSelectedFiles(newFiles);
     setFilePreviews(newPreviews);
   };
@@ -69,7 +75,8 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
         setDescription("");
         setSelectedFiles([]);
         setFilePreviews([]);
-        onIssueSubmitted();
+        // Redirect to issues page to show the submitted issue
+        navigate("/issues");
       }
     } catch (error) {
       console.error("Error submitting issue:", error);
@@ -91,7 +98,9 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
       <div className="form-header">
         <img src={logo2} alt="Report Issue" className="form-icon" />
         <h3>Report a New Issue</h3>
-        <p className="form-subtitle">Help improve your community by reporting local issues</p>
+        <p className="form-subtitle">
+          Help improve your community by reporting local issues
+        </p>
       </div>
       <form onSubmit={handleSubmit} className="issue-form">
         <div className="input-group">
@@ -106,7 +115,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             required
           />
         </div>
-        
+
         <div className="input-group">
           <label htmlFor="description">Issue Description</label>
           <textarea
@@ -119,15 +128,20 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             rows={4}
           />
         </div>
-        
+
         <div className="location-status">
           {location && (
             <div className="location-info">
               <span className="location-icon">📍</span>
-              <span>Location detected: {location.lat.toFixed(4)}, {location.lng.toFixed(4)}</span>
+              <span>
+                Location detected: {location.lat.toFixed(4)},{" "}
+                {location.lng.toFixed(4)}
+              </span>
             </div>
           )}
-          {locationError && <p className="location-error">⚠️ {locationError}</p>}
+          {locationError && (
+            <p className="location-error">⚠️ {locationError}</p>
+          )}
         </div>
 
         <div className="file-upload-section">
@@ -140,21 +154,21 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
               onChange={handleFileChange}
               accept="image/*"
               multiple
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               disabled={selectedFiles.length >= 3}
             />
           </label>
           <span className="file-upload-hint">
             {selectedFiles.length}/3 photos selected
           </span>
-          
+
           <div className="file-previews">
             {filePreviews.map((preview, index) => (
               <div key={preview.id} className="file-preview">
                 <div className="file-preview-image">
                   <img src={preview.id} alt={preview.name} />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-file-btn"
                     onClick={() => removeFile(index)}
                     aria-label="Remove image"
@@ -167,14 +181,16 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             ))}
           </div>
         </div>
-        
-        <button 
-          type="submit" 
-          className={`btn-purple submit-btn ${isSubmitting || !location ? 'disabled' : ''}`}
+
+        <button
+          type="submit"
+          className={`btn-purple submit-btn ${
+            isSubmitting || !location ? "disabled" : ""
+          }`}
           disabled={isSubmitting || !location}
         >
           <span className="btn-icon">
-            {isSubmitting ? '⏳' : location ? '🚀' : '📍'}
+            {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
           </span>
           {getButtonText()}
         </button>

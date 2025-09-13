@@ -9,6 +9,7 @@ const issueRoutes = require("../server/routes/IssueRoutes");
 const userRoutes = require("../server/routes/userRoutes");
 const teamRoutes = require("../server/routes/teamRoutes");
 const notificationRoutes = require("../server/routes/notificationRoutes");
+const businessRoutes = require("../server/routes/businessRoutes");
 
 // loads env
 dotenv.config();
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 // cors
 app.use(cors());
@@ -37,6 +38,7 @@ app.use("/api/v1/issues", issueRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/businesses", businessRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Civic Sprint API is running!" });
