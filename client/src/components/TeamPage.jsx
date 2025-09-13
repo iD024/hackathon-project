@@ -244,14 +244,19 @@ const TeamPage = () => {
                 <div className="issue-content">
                   <span className="issue-title">{issue.title}</span>
                   <div className="issue-actions">
-                    <button onClick={() => setSelectedIssue(issue)} className="view-details-btn">
+                    <button
+                      onClick={() => setSelectedIssue(issue)}
+                      className="view-details-btn"
+                    >
                       View Details
                     </button>
                     {userTeam &&
                       userTeam.leader === currentUser &&
                       !userTeam.issue && (
                         <button
-                          onClick={() => handleAssignIssue(userTeam._id, issue._id)}
+                          onClick={() =>
+                            handleAssignIssue(userTeam._id, issue._id)
+                          }
                           className="assign-btn"
                         >
                           Assign
