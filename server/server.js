@@ -8,6 +8,7 @@ const issueRoutes = require("../server/routes/IssueRoutes");
 // --- ADD THIS LINE ---
 const userRoutes = require("../server/routes/userRoutes");
 const teamRoutes = require("../server/routes/teamRoutes");
+const notificationRoutes = require("../server/routes/notificationRoutes");
 
 // loads env
 dotenv.config();
@@ -32,6 +33,7 @@ const corsOptions = {
 app.use("/api/v1/issues", issueRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/teams", teamRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Civic Sprint API is running!" });

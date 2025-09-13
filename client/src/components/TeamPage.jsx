@@ -3,7 +3,6 @@ import {
   getTeams,
   createTeam,
   getUsers,
-  addMemberToTeam,
   removeMemberFromTeam,
   leaveTeam,
   disbandTeam,
@@ -11,6 +10,7 @@ import {
   assignIssueToTeam,
   removeIssueFromTeam,
   resolveIssue,
+  sendInvitation,
 } from "../services/apiService";
 import "./css/TeamPage.css";
 import { jwtDecode } from "jwt-decode";
@@ -51,10 +51,10 @@ const TeamPage = () => {
     setTeamName("");
     fetchAllData();
   };
-
-  const handleAddMember = async (teamId, userId) => {
-    await addMemberToTeam({ teamId, userId });
-    fetchAllData();
+  const handleInviteMember = async (teamId, recipientId) => {
+    await sendInvitation({ teamId, recipientId });
+    // Maybe show a confirmation message
+    alert("Invitation sent!");
   };
 
   const handleRemoveMember = async (teamId, userId) => {
@@ -62,13 +62,13 @@ const TeamPage = () => {
     fetchAllData();
   };
 
-  const handleLeaveTeam = async (teamId) => {
-    await leaveTeam({ teamId });
+  const handleDisbandTeam = async (teamId) => {
+    await disbandTeam({ teamId });
     fetchAllData();
   };
 
-  const handleDisbandTeam = async (teamId) => {
-    await disbandTeam({ teamId });
+  const handleLeaveTeam = async (teamId) => {
+    await leaveTeam({ teamId });
     fetchAllData();
   };
 
@@ -142,63 +142,18 @@ const TeamPage = () => {
               </ul>
             </div>
 
-            {currentUser === team.leader && (
-              <div className="add-member-form">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const userId = e.target.elements.user.value;
-                    handleAddMember(team._id, userId);
-                  }}
-                >
-                  <select name="user">
-                    <option value="">Select a User to Add</option>
-                    {users
-                      .filter(
-                        (user) => !team.members.some((m) => m._id === user._id)
-                      )
-                      .map((user) => (
-                        <option key={user._id} value={user._id}>
-                          {user.name}
-                        </option>
-                      ))}
-                  </select>
-                  <button type="submit">Add Member</button>
-                </form>
-                <div className="assign-issue-form">
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const issueId = e.target.elements.issue.value;
-                      handleAssignIssue(team._id, issueId);
-                    }}
+            {currentUser === team.leader?._id && (
+              <>
+                <div className="team-actions">
+                  <button
+                    onClick={() => handleDisbandTeam(team._id)}
+                    className="disband-button"
                   >
-                    <select name="issue">
-                      <option value="">Select an Issue to Assign</option>
-                      {issues
-                        .filter((issue) => issue.status === "Reported")
-                        .map((issue) => (
-                          <option key={issue._id} value={issue._id}>
-                            {issue.description}
-                          </option>
-                        ))}
-                    </select>
-                    <button type="submit">Assign Issue</button>
-                  </form>
+                    Disband Team
+                  </button>
                 </div>
-                <button onClick={() => handleDisbandTeam(team._id)}>
-                  Disband Team
-                </button>
-              </div>
+              </>
             )}
-
-            {userTeam &&
-              userTeam._id === team._id &&
-              currentUser !== team.leader && (
-                <button onClick={() => handleLeaveTeam(team._id)}>
-                  Leave Team
-                </button>
-              )}
           </div>
         ))}
       </div>
@@ -233,18 +188,23 @@ const TeamPage = () => {
               ))}
             </ul>
           </div>
-          {userTeam.leader === currentUser && (
-            <div className="team-actions">
-              <button onClick={() => handleDisbandTeam(userTeam._id)}>
+          <div className="team-actions">
+            {userTeam.leader._id === currentUser ? (
+              <button
+                onClick={() => handleDisbandTeam(userTeam._id)}
+                className="disband-button"
+              >
                 Disband Team
               </button>
-            </div>
-          )}
-          {userTeam.leader !== currentUser && (
-            <button onClick={() => handleLeaveTeam(userTeam._id)}>
-              Leave Team
-            </button>
-          )}
+            ) : (
+              <button
+                onClick={() => handleLeaveTeam(userTeam._id)}
+                className="leave-button"
+              >
+                Leave Team
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -253,16 +213,18 @@ const TeamPage = () => {
         <ul>
           {users
             .filter(
-              (user) => !(user.teams || []).some((t) => t._id === userTeam?._id)
+              (user) =>
+                !(user.teams || []).some((t) => t._id === userTeam?._id) &&
+                !teams.some((team) => team.leader._id === user._id)
             )
             .map((user) => (
               <li key={user._id}>
                 {user.name}
-                {userTeam && currentUser === userTeam.leader && (
+                {userTeam && currentUser === userTeam.leader._id && (
                   <button
-                    onClick={() => handleAddMember(userTeam._id, user._id)}
+                    onClick={() => handleInviteMember(userTeam._id, user._id)}
                   >
-                    Add to Team
+                    Invite to Team
                   </button>
                 )}
               </li>

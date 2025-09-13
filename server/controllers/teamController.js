@@ -21,6 +21,7 @@ exports.createTeam = async (req, res) => {
 exports.getTeams = async (req, res) => {
   try {
     const teams = await Team.find()
+      .populate("leader", "name email")
       .populate("members", "name email")
       .populate("issue", "title description");
     res.json({ teams });

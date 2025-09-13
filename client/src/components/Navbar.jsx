@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo1 from "../assets/logo1.png";
+import Notifications from "./Notifications";
 import "./css/Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("civicPulseToken"); // Clear the token
@@ -25,9 +27,18 @@ function Navbar() {
       </div>
       {/* Show logout button if a token exists */}
       {localStorage.getItem("civicPulseToken") && (
-        <button onClick={handleLogout} className="logout-btn">
-          Logout
-        </button>
+        <div className="navbar-user-actions">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="notification-btn"
+          >
+            🔔
+          </button>
+          {showNotifications && <Notifications />}
+          <button onClick={handleLogout} className="logout-btn">
+            Logout
+          </button>
+        </div>
       )}
     </nav>
   );

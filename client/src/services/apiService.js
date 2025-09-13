@@ -149,7 +149,7 @@ export const addMemberToTeam = async (data) => {
 export const removeMemberFromTeam = async (data) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
-    const response = await fetch(`${API_URL}/teams/members/remove`, {
+    const response = await fetch(`${API_URL}/teams/remove-member`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -268,6 +268,66 @@ export const resolveIssue = async (data) => {
     return await response.json();
   } catch (error) {
     console.error("Failed to resolve issue:", error);
+    return null;
+  }
+};
+
+export const sendInvitation = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/notifications/invite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to send invitation");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to send invitation:", error);
+    return null;
+  }
+};
+
+export const getNotifications = async () => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/notifications`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch notifications");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+    return [];
+  }
+};
+
+export const respondToInvitation = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/notifications/respond`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to respond to invitation");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to respond to invitation:", error);
     return null;
   }
 };
