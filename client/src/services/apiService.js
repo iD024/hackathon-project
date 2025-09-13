@@ -65,14 +65,14 @@ export const createIssue = async (issueData, files = []) => {
     const formData = new FormData();
 
     // Add issue data as JSON string
-    formData.append("title", issueData.title);
+    formData.append("title", issueData.title || '');
     formData.append("description", issueData.description);
     formData.append("location", JSON.stringify(issueData.location));
 
-    // Add files if any
-    files.forEach((file) => {
-      formData.append("photos", file);
-    });
+    // Add single file if exists
+    if (files.length > 0) {
+      formData.append("image", files[0]); // Single file upload
+    }
 
     const response = await fetch(`${API_URL}/issues`, {
       method: "POST",

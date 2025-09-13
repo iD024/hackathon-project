@@ -13,12 +13,12 @@ const router = express.Router();
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// Handle file uploads for issue creation
+// Handle single image upload for issue creation
 router.route("/")
   .get(getIssues)
   .post(
     protect,
-    upload.array('photos', 3), // Max 3 files
+    upload, // Single file upload middleware
     reportIssue
   );
 

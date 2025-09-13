@@ -49,6 +49,14 @@ const issueSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  images: [{
+    type: String,
+    trim: true
+  }],
+  photoUrl: {
+    type: String,
+    trim: true
+  }
 });
 
 // scary stuff
