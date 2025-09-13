@@ -73,3 +73,16 @@
 .hours-list {
   font-size: 0.9rem;
 }
+
+/* Add this rule to your existing BusinessesPage.css file */
+.business-card {
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Add transition */
+}
+
+.business-card:hover {
+  transform: translateY(-5px); /* Add hover effect */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}

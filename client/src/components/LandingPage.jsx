@@ -9,10 +9,8 @@ function LandingPage() {
       <div className="landing-hero">
         <div className="hero-content">
           <div className="hero-title-container">
-            <img src={logo1} alt="Civic Pulse" className="hero-logo" />
-            <h1 className="hero-title">
-              Civic <span className="gradient-text">Pulse</span>
-            </h1>
+            <img src={logo1} alt="Civic Pulse Logo" className="hero-logo" />
+            <h1 className="hero-title">Civic Pulse</h1>
           </div>
           <p className="hero-subtitle">
             Transform your community with the power of collective action. Report
@@ -20,27 +18,24 @@ function LandingPage() {
           </p>
           <div className="hero-features">
             <div className="feature">
-              <div className="feature-icon">🏙️</div>
+              <span className="feature-icon">🏙️</span>
               <span>Smart Issue Reporting</span>
             </div>
             <div className="feature">
-              <div className="feature-icon">🤖</div>
+              <span className="feature-icon">🤖</span>
               <span>AI-Powered Analysis</span>
             </div>
             <div className="feature">
-              <div className="feature-icon">📍</div>
+              <span className="feature-icon">📍</span>
               <span>Location-Based Tracking</span>
             </div>
           </div>
           <div className="landing-actions">
-            <Link to="/login" className="btn-purple btn-large">
+            <Link to="/login" className="btn btn-primary">
               Get Started
             </Link>
-            <Link to="/register" className="btn-outline">
+            <Link to="/register" className="btn btn-secondary">
               Create Account
-            </Link>
-            <Link to="/submit-issue" className="btn-secondary btn-large">
-              Report Issue
             </Link>
           </div>
         </div>

@@ -104,3 +104,20 @@
   color: var(--dark-gray);
   font-weight: 500;
 }
+
+/* Add this rule to your existing IssuesPage.css file */
+.issue-card {
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--light-gray);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Add transition */
+}
+
+.issue-card:hover {
+  transform: translateY(-5px); /* Add hover effect */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
