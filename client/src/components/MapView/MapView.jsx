@@ -4,7 +4,6 @@ import {
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
-  MarkerClustererF, // Import the Marker Clusterer
 } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -19,7 +18,6 @@ const wrapperStyle = {
   minWidth: 0,
 };
 
-// --- Custom SVG for the issue markers ---
 const issueMarkerIcon = {
   url: `data:image/svg+xml,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233d402b" width="36px" height="36px">
@@ -37,6 +35,7 @@ function MapView({ issues, userLocation }) {
   });
 
   const [activeMarker, setActiveMarker] = useState(null);
+  const [selectedIssues, setSelectedIssues] = useState([]);
   const mapRef = useRef(null);
 
   const userLocationIcon = useMemo(() => {
@@ -61,18 +60,37 @@ function MapView({ issues, userLocation }) {
         });
       });
       mapRef.current.fitBounds(bounds);
-
-      if (issues.length === 1) {
-        mapRef.current.setZoom(14);
-      }
     }
   }, [issues, isLoaded]);
+
+  const handleMarkerClick = (clickedIssue) => {
+    const issuesAtLocation = issues.filter(
+      (issue) =>
+        issue.location.coordinates[1] ===
+          clickedIssue.location.coordinates[1] &&
+        issue.location.coordinates[0] === clickedIssue.location.coordinates[0]
+    );
+
+    if (issuesAtLocation.length > 1) {
+      setSelectedIssues(issuesAtLocation);
+      setActiveMarker(clickedIssue._id);
+    } else {
+      setSelectedIssues([clickedIssue]);
+      setActiveMarker(clickedIssue._id);
+    }
+  };
 
   const mapCenter = useMemo(() => {
     if (userLocation && (!issues || issues.length === 0)) {
       return userLocation;
     }
-    return { lat: 26.8467, lng: 75.7873 };
+    if (issues && issues.length > 0) {
+      return {
+        lat: issues[0].location.coordinates[1],
+        lng: issues[0].location.coordinates[0],
+      };
+    }
+    return null;
   }, [issues, userLocation]);
 
   if (loadError) {
@@ -106,32 +124,48 @@ function MapView({ issues, userLocation }) {
           />
         )}
 
-        {/* --- Wrap Markers in a Clusterer --- */}
-        <MarkerClustererF>
-          {(clusterer) =>
-            issues.map((issue) => (
-              <MarkerF
-                key={issue._id}
-                position={{
-                  lat: issue.location.coordinates[1],
-                  lng: issue.location.coordinates[0],
-                }}
-                clusterer={clusterer}
-                icon={issueMarkerIcon} // Use the custom icon
-                onClick={() => setActiveMarker(issue._id)}
-              >
-                {activeMarker === issue._id && (
-                  <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
-                    <div>
-                      <h4>{issue.aiCategory || "Issue"}</h4>
-                      <p>{issue.description}</p>
-                    </div>
-                  </InfoWindowF>
-                )}
-              </MarkerF>
-            ))
-          }
-        </MarkerClustererF>
+        {issues.map((issue) => (
+          <MarkerF
+            key={issue._id}
+            position={{
+              lat: issue.location.coordinates[1],
+              lng: issue.location.coordinates[0],
+            }}
+            icon={issueMarkerIcon}
+            onClick={() => handleMarkerClick(issue)}
+          />
+        ))}
+
+        {activeMarker && (
+          <InfoWindowF
+            position={{
+              lat: selectedIssues[0].location.coordinates[1],
+              lng: selectedIssues[0].location.coordinates[0],
+            }}
+            onCloseClick={() => {
+              setActiveMarker(null);
+              setSelectedIssues([]);
+            }}
+          >
+            <div>
+              {selectedIssues.length > 1 ? (
+                <>
+                  <h4>{selectedIssues.length} Issues Here</h4>
+                  <ul>
+                    {selectedIssues.map((issue) => (
+                      <li key={issue._id}>{issue.title}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <>
+                  <h4>{selectedIssues[0].title}</h4>
+                  <p>{selectedIssues[0].description}</p>
+                </>
+              )}
+            </div>
+          </InfoWindowF>
+        )}
       </GoogleMap>
     </div>
   );
