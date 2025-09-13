@@ -23,8 +23,9 @@ function Navbar() {
         <Link to="/home">Home</Link>
         {localStorage.getItem("civicPulseToken") && (
           <>
+            <Link to="/issues">All Issues</Link>
             <Link to="/teams">Teams</Link>
-            <Link to="/resolved">Resolved Issues</Link>
+            <Link to="/resolved">Resolved</Link>
             <Link to="/stats">Statistics</Link>
           </>
         )}

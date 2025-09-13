@@ -8,6 +8,7 @@ import RegisterPage from "./components/RegisterPage";
 import TeamPage from "./components/TeamPage";
 import ResolvedIssues from "./components/ResolvedIssues";
 import StatsPage from "./components/StatsPage";
+import IssuesPage from "./components/IssuesPage";
 import "./App.css";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/issues" element={<IssuesPage />} />
         <Route path="/teams" element={<TeamPage />} />
         <Route path="/resolved" element={<ResolvedIssues />} />
         <Route path="/stats" element={<StatsPage />} />
