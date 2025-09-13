@@ -1,21 +1,18 @@
 const Issue = require("../models/issue");
+const axios = require("axios"); // Import axios
 
 const reportIssue = async (req, res) => {
   try {
-    // Multer will place text fields in req.body
     const { title, description, location } = req.body;
 
-    // The check that was failing
     if (!description || !location) {
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    // The location comes in as a string, so we must parse it back into an object
     const parsedLocation = JSON.parse(location);
 
-    // Multer will place uploaded file info in req.files
     let imageFilenames = [];
     if (req.files && req.files.length > 0) {
       imageFilenames = req.files.map((file) => file.filename);
@@ -25,9 +22,29 @@ const reportIssue = async (req, res) => {
       title,
       description,
       location: parsedLocation,
-      images: imageFilenames, // Save the array of unique filenames
+      images: imageFilenames,
       reportedBy: req.user ? req.user._id : null,
     });
+
+    // --- AI Triage Call (NEW CODE) ---
+    try {
+      // Call the AI service running on port 5002
+      const aiResponse = await axios.post("http://localhost:5002/triage", {
+        description: newIssue.description,
+      });
+
+      if (aiResponse.data) {
+        // The AI service returns 'priority', which we map to 'aiSeverity'
+        newIssue.aiCategory = aiResponse.data.category;
+        newIssue.aiSeverity = aiResponse.data.priority;
+        await newIssue.save(); // Save the updated issue with AI analysis
+      }
+    } catch (aiError) {
+      console.error("AI Service Error:", aiError.message);
+      // If the AI service fails, we don't stop the process.
+      // The issue is already saved with "Pending" status.
+    }
+    // --- End of AI Triage Call ---
 
     res.status(201).json(newIssue);
   } catch (error) {
@@ -38,7 +55,7 @@ const reportIssue = async (req, res) => {
   }
 };
 
-// ... (The rest of the file can remain the same)
+// ... (rest of the file remains the same)
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()

@@ -1,11 +1,18 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs"); // Import the 'fs' module
 
-// CORRECTED: Use diskStorage to save files locally
+// --- NEW CODE: Ensure 'uploads' directory exists ---
+const uploadDir = path.join(__dirname, "..", "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+// --- END NEW CODE ---
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // Files will be saved in the 'uploads/' directory
-    cb(null, "uploads/");
+    cb(null, uploadDir); // Use the absolute path
   },
   filename: function (req, file, cb) {
     // Create a unique filename to prevent overwrites
@@ -17,7 +24,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter for images only
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -26,7 +32,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize upload with the corrected storage engine
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,

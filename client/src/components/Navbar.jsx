@@ -23,8 +23,8 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("civicPulseToken"); // Clear the token
-    navigate("/"); // Redirect to the landing page
+    localStorage.removeItem("civicPulseToken");
+    navigate("/");
   };
 
   return (
@@ -46,9 +46,11 @@ function Navbar() {
           </>
         )}
       </div>
-      {/* Show logout button if a token exists */}
       {localStorage.getItem("civicPulseToken") && (
         <div className="navbar-user-actions">
+          {/* --- NEW CODE --- */}
+          {userType && <span className="user-type-badge">{userType}</span>}
+          {/* --- END NEW CODE --- */}
           <button
             onClick={() => setShowNotifications(!showNotifications)}
             className="notification-btn"
