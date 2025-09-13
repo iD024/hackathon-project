@@ -29,13 +29,16 @@ function IssueFeed({ issues }) {
         {issues.map((issue, index) => (
           <div key={issue._id} className="issue-item" style={{animationDelay: `${index * 0.1}s`}}>
             <div className="issue-header">
-              <div className="issue-category">
-                <span className="category-icon">
-                  {issue.aiCategory === 'Infrastructure' ? '🏗️' : 
-                   issue.aiCategory === 'Safety' ? '⚠️' : 
-                   issue.aiCategory === 'Environment' ? '🌱' : '📝'}
-                </span>
-                <span className="category-text">{issue.aiCategory || 'General'}</span>
+              <div className="issue-title-section">
+                <h4 className="issue-title">{issue.title || 'Untitled Issue'}</h4>
+                <div className="issue-category">
+                  <span className="category-icon">
+                    {issue.aiCategory === 'Infrastructure' ? '🏗️' : 
+                     issue.aiCategory === 'Safety' ? '⚠️' : 
+                     issue.aiCategory === 'Environment' ? '🌱' : '📝'}
+                  </span>
+                  <span className="category-text">{issue.aiCategory || 'General'}</span>
+                </div>
               </div>
               <div className="issue-badges">
                 <span className={`status-badge status-${issue.status.toLowerCase().replace(' ', '-')}`}>

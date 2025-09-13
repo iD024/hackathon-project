@@ -242,7 +242,7 @@ const TeamPage = () => {
             .map((issue) => (
               <li key={issue._id} className="issue-item">
                 <div className="issue-content">
-                  <span className="issue-title">{issue.title}</span>
+                  <span className="issue-title">{issue.title || issue.description.substring(0, 50) + '...'}</span>
                   <div className="issue-actions">
                     <button
                       onClick={() => setSelectedIssue(issue)}

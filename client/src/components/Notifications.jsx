@@ -28,8 +28,8 @@ const Notifications = () => {
         notifications.map((notif) => (
           <div key={notif._id} className="notification-item">
             <p>
-              <strong>{notif.team.name}</strong> (Leader:{" "}
-              {notif.team.leader ? notif.team.leader.name : "N/A"}) has invited
+              <strong>{notif.team?.name || "Unknown Team"}</strong> (Leader:{" "}
+              {notif.team?.leader?.name || "N/A"}) has invited
               you to join.
             </p>
             {notif.status === "pending" && (

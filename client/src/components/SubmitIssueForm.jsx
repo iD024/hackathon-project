@@ -4,16 +4,18 @@ import logo2 from "../assets/logo2.png";
 import "../components/css/SubmitIssueForm.css";
 
 function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!description || isSubmitting || !location) return;
+    if (!title || !description || isSubmitting || !location) return;
 
     setIsSubmitting(true);
 
     const newIssue = {
+      title,
       description,
       location: {
         type: "Point",
@@ -23,6 +25,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
 
     const result = await createIssue(newIssue);
     if (result) {
+      setTitle("");
       setDescription("");
       onIssueSubmitted();
     }
@@ -44,6 +47,19 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
         <p className="form-subtitle">Help improve your community by reporting local issues</p>
       </div>
       <form onSubmit={handleSubmit} className="issue-form">
+        <div className="input-group">
+          <label htmlFor="title">Issue Title</label>
+          <input
+            id="title"
+            type="text"
+            className="input-purple"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Brief title for the issue (e.g., 'Pothole on Main Street')"
+            required
+          />
+        </div>
+        
         <div className="input-group">
           <label htmlFor="description">Issue Description</label>
           <textarea

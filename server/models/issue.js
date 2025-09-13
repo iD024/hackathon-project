@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const issueSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: false, // Make optional to handle existing issues without titles
+  },
   description: {
     type: String,
     required: [true, 'Please add a description of the issue'],

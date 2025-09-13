@@ -11,7 +11,7 @@ const reportIssue = async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Request user:", req.user);
     
-    const { description, location } = req.body;
+    const { title, description, location } = req.body;
 
     if (!description || !location) {
       console.log("Missing required fields - description:", !!description, "location:", !!location);
@@ -43,6 +43,7 @@ const reportIssue = async (req, res) => {
     }
 
     console.log("Creating issue with data:", {
+      title,
       description,
       location,
       reportedBy: req.user._id,
@@ -59,6 +60,7 @@ const reportIssue = async (req, res) => {
     }
 
     const newIssue = await Issue.create({
+      title,
       description,
       location,
       reportedBy: req.user._id,
