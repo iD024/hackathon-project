@@ -13,7 +13,7 @@ const router = express.Router();
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// The POST route now uses upload.array() to accept up to 5 images
-router.route("/").get(getIssues).post(upload.array("images", 5), reportIssue); // Allow up to 5 images
+// Apply multer middleware for file uploads on the POST route
+router.route("/").get(getIssues).post(upload.array("images", 3), reportIssue); // Allow up to 3 images
 
 module.exports = router;

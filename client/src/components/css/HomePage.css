@@ -10,3 +10,14 @@
   flex: 1;
   min-height: 400px;
 }
+
+.report-issue-prompt {
+  padding: 1rem;
+  text-align: center;
+}
+
+.btn-report {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 1rem;
+}

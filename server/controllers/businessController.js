@@ -57,9 +57,9 @@ const createBusiness = async (req, res) => {
 
     // Handle image uploads
     if (req.files && req.files.length > 0) {
+      // Just get the filenames, as they are now saved locally by multer
       businessData.images = req.files.map((file) => file.filename);
     }
-
     const business = await Business.create(businessData);
 
     res.status(201).json({

@@ -10,6 +10,7 @@ function HomePage() {
   const [issues, setIssues] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState("");
+  const [showSubmitForm, setShowSubmitForm] = useState(false); // State to toggle the form
   const navigate = useNavigate();
 
   // Token check
@@ -20,9 +21,8 @@ function HomePage() {
     }
   }, [navigate]);
 
-  // Fetch user's location once when the component mounts
+  // Fetch user's location
   useEffect(() => {
-    // Options to request a more accurate location
     const geoOptions = {
       enableHighAccuracy: true,
       timeout: 10000,
@@ -44,7 +44,7 @@ function HomePage() {
             "Location access denied. Please enable it in your browser settings."
           );
         },
-        geoOptions // Pass the high-accuracy options here
+        geoOptions
       );
     } else {
       setLocationError("Geolocation is not supported by this browser.");
@@ -63,15 +63,33 @@ function HomePage() {
     fetchIssues();
   }, [fetchIssues]);
 
+  // Handler to close the form and refresh the issue feed after submission
+  const handleIssueSubmitted = () => {
+    fetchIssues();
+    setShowSubmitForm(false);
+  };
+
   return (
     <main className="home-container">
       <MapView issues={issues} userLocation={userLocation} />
       <div className="sidebar">
-        <SubmitIssueForm
-          onIssueSubmitted={fetchIssues}
-          location={userLocation}
-          locationError={locationError}
-        />
+        {showSubmitForm ? (
+          <SubmitIssueForm
+            onIssueSubmitted={handleIssueSubmitted}
+            onCancel={() => setShowSubmitForm(false)} // Pass a cancel handler
+            location={userLocation}
+            locationError={locationError}
+          />
+        ) : (
+          <div className="report-issue-prompt card-purple">
+            <button
+              className="btn-purple btn-report"
+              onClick={() => setShowSubmitForm(true)}
+            >
+              🚀 Report a New Issue
+            </button>
+          </div>
+        )}
         <IssueFeed issues={issues} />
       </div>
     </main>

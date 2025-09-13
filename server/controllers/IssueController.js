@@ -1,7 +1,11 @@
 const Issue = require("../models/issue");
 const axios = require("axios");
-const { uploadMultipleToFirebase } = require("../services/firebaseUpload"); // Server-side uploader
 
+/**
+ * @desc    Report a new civic issue
+ * @route   POST /api/v1/issues
+ * @access  Private (now protected)
+ */
 const reportIssue = async (req, res) => {
   try {
     const { title, description, location } = req.body;
@@ -12,28 +16,48 @@ const reportIssue = async (req, res) => {
         .json({ message: "Description and location are required." });
     }
 
-    // Parse the location JSON string from FormData
+    const reportedBy = req.user ? req.user._id : null;
+
+    let issueCategory = "General Inquiry";
+    let issueSeverity = "Pending";
+
+    try {
+      const triageResponse = await axios.post("http://127.0.0.1:5002/triage", {
+        description: description,
+      });
+
+      issueCategory = triageResponse.data.category;
+      issueSeverity = triageResponse.data.priority;
+    } catch (aiError) {
+      console.error("AI Triage Service Error:", aiError.message);
+    }
+
     const parsedLocation = JSON.parse(location);
 
-    // Upload images from the server to Firebase
-    let imageUrls = [];
-    if (req.files && req.files.length > 0) {
-      try {
-        // Use the server-side uploader, which takes multer file objects
-        imageUrls = await uploadMultipleToFirebase(req.files, "issues");
-      } catch (uploadError) {
-        console.error("Firebase upload error on server:", uploadError);
-        return res.status(500).json({ message: "Failed to upload images." });
-      }
+    if (
+      !parsedLocation.type ||
+      parsedLocation.type !== "Point" ||
+      !parsedLocation.coordinates ||
+      !Array.isArray(parsedLocation.coordinates) ||
+      parsedLocation.coordinates.length !== 2
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid location format. Expected GeoJSON Point with coordinates array.",
+      });
     }
+
+    // Handle file uploads from multer
+    const imageUrls = req.files ? req.files.map((file) => file.filename) : [];
 
     const newIssue = await Issue.create({
       title,
       description,
       location: parsedLocation,
-      images: imageUrls, // Use the new URLs from Firebase
-      reportedBy: req.user ? req.user._id : null,
-      // AI fields can be added back here later
+      images: imageUrls,
+      reportedBy,
+      aiCategory: issueCategory,
+      aiSeverity: issueSeverity,
     });
 
     res.status(201).json(newIssue);
@@ -43,6 +67,11 @@ const reportIssue = async (req, res) => {
       .status(500)
       .json({ message: "Error reporting issue", error: error.message });
   }
+};
+// ... (rest of the file remains the same)
+module.exports = {
+  reportIssue,
+  //... other exports
 };
 
 /**

@@ -1,5 +1,4 @@
 const API_URL = "http://localhost:5000/api/v1";
-import { uploadMultipleToFirebase } from "./firebaseUpload";
 
 // Helper function to handle storing token
 const handleAuthResponse = (data) => {
@@ -48,29 +47,19 @@ export const registerUser = async (userData) => {
 export const createIssue = async (issueData, files = []) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
-    // Upload files to Firebase first if any
-    let imageUrls = [];
-    if (files && files.length > 0) {
-      try {
-        imageUrls = await uploadMultipleToFirebase(files, "issues");
-        console.log("Files uploaded to Firebase:", imageUrls);
-      } catch (uploadError) {
-        console.error("Error uploading files to Firebase:", uploadError);
-        throw new Error("Failed to upload images");
-      }
-    }
+    const formData = new FormData();
 
-    // Prepare the request body
-    const requestBody = {
-      title: issueData.title,
-      description: issueData.description,
-      location: issueData.location,
-      images: imageUrls,
-    };
+    // Append text data
+    formData.append("title", issueData.title);
+    formData.append("description", issueData.description);
+    formData.append("location", JSON.stringify(issueData.location));
 
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    // Append files
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    const headers = {};
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
@@ -78,7 +67,7 @@ export const createIssue = async (issueData, files = []) => {
     const response = await fetch(`${API_URL}/issues`, {
       method: "POST",
       headers,
-      body: JSON.stringify(requestBody),
+      body: formData, // Send formData instead of JSON
     });
 
     if (!response.ok) {

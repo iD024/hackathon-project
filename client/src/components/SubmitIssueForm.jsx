@@ -1,34 +1,30 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
-import {
-  ArrowUpTrayIcon,
-  XMarkIcon,
-  PhotoIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import "../components/css/SubmitIssueForm.css";
 
-function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
+function SubmitIssueForm({
+  onIssueSubmitted,
+  onCancel,
+  location,
+  locationError,
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
   const fileInputRef = useRef(null);
-  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-
-    // Filter to only allow images and limit to 3 files
     const imageFiles = files
       .filter((file) => file.type.startsWith("image/"))
       .slice(0, 3 - selectedFiles.length);
 
     if (imageFiles.length === 0) return;
 
-    // Create previews for the new files
     const newPreviews = imageFiles.map((file) => ({
       id: URL.createObjectURL(file),
       file,
@@ -42,13 +38,9 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const removeFile = (index) => {
     const newFiles = [...selectedFiles];
     const newPreviews = [...filePreviews];
-
-    // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(newPreviews[index].id);
-
     newFiles.splice(index, 1);
     newPreviews.splice(index, 1);
-
     setSelectedFiles(newFiles);
     setFilePreviews(newPreviews);
   };
@@ -70,17 +62,11 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
 
     try {
       const result = await createIssue(newIssue, selectedFiles);
-      if (result) {
-        setTitle("");
-        setDescription("");
-        setSelectedFiles([]);
-        setFilePreviews([]);
-        // Redirect to issues page to show the submitted issue
-        navigate("/issues");
+      if (result && onIssueSubmitted) {
+        onIssueSubmitted(); // Let the parent component handle success
       }
     } catch (error) {
       console.error("Error submitting issue:", error);
-      // You might want to show an error message to the user here
     } finally {
       setIsSubmitting(false);
     }
@@ -182,18 +168,23 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className={`btn-purple submit-btn ${
-            isSubmitting || !location ? "disabled" : ""
-          }`}
-          disabled={isSubmitting || !location}
-        >
-          <span className="btn-icon">
-            {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
-          </span>
-          {getButtonText()}
-        </button>
+        <div className="form-actions-submit">
+          <button
+            type="submit"
+            className={`btn-purple submit-btn ${
+              isSubmitting || !location ? "disabled" : ""
+            }`}
+            disabled={isSubmitting || !location}
+          >
+            <span className="btn-icon">
+              {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
+            </span>
+            {getButtonText()}
+          </button>
+          <button type="button" className="btn-cancel" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
