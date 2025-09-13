@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // 1. IMPORT HOOK
+import { useNavigate } from "react-router-dom";
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
 import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -12,7 +12,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
   const fileInputRef = useRef(null);
-  const navigate = useNavigate(); // 2. INITIALIZE HOOK
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -24,6 +24,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
 
     const newPreviews = imageFiles.map((file) => ({
       id: URL.createObjectURL(file),
+      file,
       name: file.name,
     }));
 
@@ -58,7 +59,6 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
     };
 
     try {
-      // Pass the issue data and the actual file objects
       const result = await createIssue(newIssue, selectedFiles);
       if (result) {
         setTitle("");
@@ -68,7 +68,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
         if (onIssueSubmitted) {
           onIssueSubmitted();
         }
-        navigate("/issues"); // Redirect on success
+        navigate("/issues");
       }
     } catch (error) {
       console.error("Error submitting issue:", error);
@@ -77,7 +77,6 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
     }
   };
 
-  // ... (the rest of the component remains the same)
   const getButtonText = () => {
     if (isSubmitting) return "Submitting...";
     if (!location && !locationError) return "Getting Location...";

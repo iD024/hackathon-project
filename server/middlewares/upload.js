@@ -1,13 +1,14 @@
 const multer = require("multer");
 const path = require("path");
 
-// Configure disk storage for Multer
+// CORRECTED: Use diskStorage to save files locally
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Make sure you have an 'uploads' directory in your server folder
+    // Files will be saved in the 'uploads/' directory
     cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
+    // Create a unique filename to prevent overwrites
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,
@@ -25,7 +26,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize upload
+// Initialize upload with the corrected storage engine
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
