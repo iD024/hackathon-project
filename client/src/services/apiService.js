@@ -45,21 +45,6 @@ export const registerUser = async (userData) => {
   }
 };
 
-export const getIssues = async () => {
-  try {
-    const response = await fetch(`${API_URL}/issues`);
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const issues = await response.json();
-    // Filter out resolved issues from the main feed
-    return issues.filter((issue) => issue.status !== "Resolved");
-  } catch (error) {
-    console.error("Failed to fetch issues:", error);
-    return [];
-  }
-};
-
 export const createIssue = async (issueData, files = []) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
@@ -339,19 +324,6 @@ export const respondToInvitation = async (data) => {
   }
 };
 
-export const getResolvedIssues = async () => {
-  try {
-    const response = await fetch(`${API_URL}/issues/resolved`);
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to fetch resolved issues:", error);
-    return [];
-  }
-};
-
 export const resolveIssue = async (issueId) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
@@ -494,6 +466,33 @@ export const deleteBusiness = async () => {
   } catch (error) {
     console.error("Failed to delete business:", error);
     throw error;
+  }
+};
+
+export const getIssues = async () => {
+  try {
+    const response = await fetch(`${API_URL}/issues`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const issues = await response.json();
+    return issues.filter((issue) => issue.status !== "Resolved");
+  } catch (error) {
+    console.error("Failed to fetch issues:", error);
+    return [];
+  }
+};
+
+export const getResolvedIssues = async () => {
+  try {
+    const response = await fetch(`${API_URL}/issues/resolved`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch resolved issues:", error);
+    return [];
   }
 };
 

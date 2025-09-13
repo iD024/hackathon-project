@@ -208,6 +208,7 @@ const BusinessDashboard = () => {
           setError(
             "Unable to get your location. Please enter coordinates manually."
           );
+          console.log(error);
         }
       );
     }

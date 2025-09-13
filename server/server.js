@@ -22,6 +22,7 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use("/uploads", express.static("uploads"));
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static("uploads"));

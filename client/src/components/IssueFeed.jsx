@@ -24,47 +24,73 @@ function IssueFeed({ issues }) {
       <div className="feed-header">
         <img src={logo1} alt="Issue Feed" className="feed-icon" />
         <h2>Issue Feed</h2>
-        <div className="issue-count">{issues.length} {issues.length === 1 ? 'Issue' : 'Issues'}</div>
+        <div className="issue-count">
+          {issues.length} {issues.length === 1 ? "Issue" : "Issues"}
+        </div>
       </div>
       <div className="issue-list">
         {issues.map((issue, index) => (
-          <div key={issue._id} className="issue-item" style={{animationDelay: `${index * 0.1}s`}}>
+          <div
+            key={issue._id}
+            className="issue-item"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
             <div className="issue-header">
               <div className="issue-title-section">
-                <h4 className="issue-title">{issue.title || 'Untitled Issue'}</h4>
+                <h4 className="issue-title">
+                  {issue.title || "Untitled Issue"}
+                </h4>
                 <div className="issue-category">
                   <span className="category-icon">
-                    {issue.aiCategory === 'Infrastructure' ? '🏗️' : 
-                     issue.aiCategory === 'Safety' ? '⚠️' : 
-                     issue.aiCategory === 'Environment' ? '🌱' : '📝'}
+                    {issue.aiCategory === "Infrastructure"
+                      ? "🏗️"
+                      : issue.aiCategory === "Safety"
+                      ? "⚠️"
+                      : issue.aiCategory === "Environment"
+                      ? "🌱"
+                      : "📝"}
                   </span>
-                  <span className="category-text">{issue.aiCategory || 'General'}</span>
+                  <span className="category-text">
+                    {issue.aiCategory || "General"}
+                  </span>
                 </div>
               </div>
               <div className="issue-badges">
-                <span className={`status-badge status-${issue.status.toLowerCase().replace(' ', '-')}`}>
+                <span
+                  className={`status-badge status-${issue.status
+                    .toLowerCase()
+                    .replace(" ", "-")}`}
+                >
                   {issue.status}
                 </span>
-                <span className={`priority-badge priority-${issue.aiSeverity?.toLowerCase() || 'pending'}`}>
-                  {issue.aiSeverity || 'Pending'}
+                <span
+                  className={`priority-badge priority-${
+                    issue.aiSeverity?.toLowerCase() || "pending"
+                  }`}
+                >
+                  {issue.aiSeverity || "Pending"}
                 </span>
               </div>
             </div>
-            
+
             <p className="issue-description">{issue.description}</p>
-            
+
             {/* Display issue images if they exist */}
             {issue.images && issue.images.length > 0 && (
               <div className="issue-images">
                 {issue.images.slice(0, 4).map((image, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="issue-image-container"
-                    data-count={index === 3 && issue.images.length > 4 ? `+${issue.images.length - 4}` : null}
+                    data-count={
+                      index === 3 && issue.images.length > 4
+                        ? `+${issue.images.length - 4}`
+                        : null
+                    }
                   >
-                    <img 
-                      src={`${image}`} 
-                      alt={`Issue ${index + 1}`} 
+                    <img
+                      src={image}
+                      alt={`Issue ${index + 1}`}
                       className="issue-image"
                       loading="lazy"
                     />
@@ -72,11 +98,11 @@ function IssueFeed({ issues }) {
                 ))}
               </div>
             )}
-            
+
             <div className="issue-footer">
               <div className="issue-meta">
                 <span className="reporter">
-                  👤 {issue.reportedBy?.name || 'Anonymous'}
+                  👤 {issue.reportedBy?.name || "Anonymous"}
                 </span>
                 <span className="date">
                   🕒 {new Date(issue.createdAt).toLocaleDateString()}

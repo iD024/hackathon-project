@@ -9,51 +9,30 @@ const { uploadMultipleToFirebase } = require("../services/firebaseUpload");
  */
 const reportIssue = async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    console.log("Request user:", req.user);
-
     const { title, description, location, images } = req.body;
 
     if (!description || !location) {
-      console.log(
-        "Missing required fields - description:",
-        !!description,
-        "location:",
-        !!location
-      );
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    // Allow anonymous issue creation - user is optional
     const reportedBy = req.user ? req.user._id : null;
 
     let issueCategory = "General Inquiry";
-    let issueSeverity = "Pending"; // Default value
+    let issueSeverity = "Pending";
 
     try {
       const triageResponse = await axios.post("http://127.0.0.1:5002/triage", {
         description: description,
       });
 
-      // Map the response from the AI service to our schema fields
-      issueCategory = triageResponse.data.category; // from Python service
-      issueSeverity = triageResponse.data.priority; // from Python service
+      issueCategory = triageResponse.data.category;
+      issueSeverity = triageResponse.data.priority;
     } catch (aiError) {
       console.error("AI Triage Service Error:", aiError.message);
     }
 
-    console.log("Creating issue with data:", {
-      title,
-      description,
-      location,
-      reportedBy,
-      aiCategory: issueCategory,
-      aiSeverity: issueSeverity,
-    });
-
-    // Validate location structure
     if (
       !location.type ||
       location.type !== "Point" ||
@@ -61,14 +40,12 @@ const reportIssue = async (req, res) => {
       !Array.isArray(location.coordinates) ||
       location.coordinates.length !== 2
     ) {
-      console.log("Invalid location format:", location);
       return res.status(400).json({
         message:
           "Invalid location format. Expected GeoJSON Point with coordinates array.",
       });
     }
 
-    // Use images from request body (already uploaded to Firebase by frontend)
     const imageUrls = images || [];
 
     const newIssue = await Issue.create({
@@ -81,11 +58,9 @@ const reportIssue = async (req, res) => {
       aiSeverity: issueSeverity,
     });
 
-    console.log("Issue created successfully:", newIssue);
     res.status(201).json(newIssue);
   } catch (error) {
     console.error("ERROR REPORTING ISSUE:", error);
-    console.error("Error stack:", error.stack);
     res
       .status(500)
       .json({ message: "Error reporting issue", error: error.message });
