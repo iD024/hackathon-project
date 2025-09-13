@@ -6,15 +6,17 @@ const {
   getResolvedIssues,
 } = require("../controllers/IssueController");
 const { protect, optionalProtect } = require("../middlewares/authMiddleware");
-const upload = require("../middleware/upload"); // Import multer middleware
+const upload = require("../middleware/upload"); // Make sure multer is imported
 
 const router = express.Router();
 
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// CORRECTED: Re-add the multer middleware to handle file uploads.
-// Use optionalProtect to allow submissions from both guests and logged-in users.
+// This is the critical part:
+// 1. `optionalProtect` checks for a user token without blocking the request.
+// 2. `upload.array('images', 5)` processes the files AND the text fields.
+// 3. `reportIssue` is the final controller that handles the logic.
 router
   .route("/")
   .get(getIssues)

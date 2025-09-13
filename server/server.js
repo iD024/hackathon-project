@@ -1,11 +1,11 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path"); // Add path module
 const connectDB = require("../server/config/db");
 
 // routes
 const issueRoutes = require("../server/routes/IssueRoutes");
-// --- ADD THIS LINE ---
 const userRoutes = require("../server/routes/userRoutes");
 const teamRoutes = require("../server/routes/teamRoutes");
 const notificationRoutes = require("../server/routes/notificationRoutes");
@@ -20,19 +20,13 @@ connectDB();
 const app = express();
 
 // middlewares
+app.use(cors()); // It's good practice to have CORS at the top
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use("/uploads", express.static("uploads"));
 
-// Serve static files from uploads directory
-app.use("/uploads", express.static("uploads"));
-
-// cors
-app.use(cors());
-const corsOptions = {
-  origin: "http://localhost:5173",
-  optionsSuccessStatus: 200, // For legacy browser support
-};
+// CORRECTED: Serve static files from the 'uploads' directory
+// This allows image URLs like http://localhost:5000/uploads/filename.png to work
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // router
 app.use("/api/v1/issues", issueRoutes);

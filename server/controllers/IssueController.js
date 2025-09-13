@@ -2,18 +2,20 @@ const Issue = require("../models/issue");
 
 const reportIssue = async (req, res) => {
   try {
+    // Multer will place text fields in req.body
     const { title, description, location } = req.body;
 
+    // The check that was failing
     if (!description || !location) {
       return res
         .status(400)
         .json({ message: "Description and location are required." });
     }
 
-    // Since location comes from FormData, it will be a string. We need to parse it.
+    // The location comes in as a string, so we must parse it back into an object
     const parsedLocation = JSON.parse(location);
 
-    // Get the filenames of uploaded images from req.files, which is handled by multer.
+    // Multer will place uploaded file info in req.files
     let imageFilenames = [];
     if (req.files && req.files.length > 0) {
       imageFilenames = req.files.map((file) => file.filename);
@@ -23,7 +25,7 @@ const reportIssue = async (req, res) => {
       title,
       description,
       location: parsedLocation,
-      images: imageFilenames, // Save the array of filenames
+      images: imageFilenames, // Save the array of unique filenames
       reportedBy: req.user ? req.user._id : null,
     });
 
@@ -36,8 +38,7 @@ const reportIssue = async (req, res) => {
   }
 };
 
-// ... (The rest of the file remains the same)
-
+// ... (The rest of the file can remain the same)
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()
