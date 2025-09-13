@@ -105,9 +105,9 @@ export const getTeams = async () => {
 };
 
 export const createTeam = async (teamData) => {
-  const token = localStorage.getItem("civicPulseToken");
   try {
-    const response = await fetch(`${API_URL}/teams`, {
+    const token = localStorage.getItem("civicPulseToken");
+    const response = await fetch(`${API_URL}/teams/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -226,6 +226,48 @@ export const assignIssueToTeam = async (data) => {
     return await response.json();
   } catch (error) {
     console.error("Failed to assign issue:", error);
+    return null;
+  }
+};
+
+export const removeIssueFromTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/remove-issue`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to remove issue");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to remove issue:", error);
+    return null;
+  }
+};
+
+export const resolveIssue = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/resolve-issue`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to resolve issue");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to resolve issue:", error);
     return null;
   }
 };

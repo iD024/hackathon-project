@@ -9,6 +9,8 @@ import {
   disbandTeam,
   getIssues,
   assignIssueToTeam,
+  removeIssueFromTeam,
+  resolveIssue,
 } from "../services/apiService";
 import "./css/TeamPage.css";
 import { jwtDecode } from "jwt-decode";
@@ -72,6 +74,16 @@ const TeamPage = () => {
 
   const handleAssignIssue = async (teamId, issueId) => {
     await assignIssueToTeam({ teamId, issueId });
+    fetchAllData();
+  };
+
+  const handleRemoveIssue = async (teamId) => {
+    await removeIssueFromTeam({ teamId });
+    fetchAllData();
+  };
+
+  const handleResolveIssue = async (teamId) => {
+    await resolveIssue({ teamId });
     fetchAllData();
   };
 
@@ -189,6 +201,93 @@ const TeamPage = () => {
               )}
           </div>
         ))}
+      </div>
+
+      {userTeam && (
+        <div className="user-team">
+          <h2>Your Team: {userTeam.name}</h2>
+          {userTeam.issue ? (
+            <div className="assigned-issue">
+              <h3>Assigned Issue</h3>
+              <p>{userTeam.issue.title}</p>
+              <p>{userTeam.issue.description}</p>
+              {userTeam.leader === currentUser && (
+                <div>
+                  <button onClick={() => handleRemoveIssue(userTeam._id)}>
+                    Remove Issue
+                  </button>
+                  <button onClick={() => handleResolveIssue(userTeam._id)}>
+                    Mark as Done
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>No issue assigned.</p>
+          )}
+          <div className="team-members">
+            <strong>Members:</strong>
+            <ul>
+              {userTeam.members.map((member) => (
+                <li key={member._id}>{member.name}</li>
+              ))}
+            </ul>
+          </div>
+          {userTeam.leader === currentUser && (
+            <div className="team-actions">
+              <button onClick={() => handleDisbandTeam(userTeam._id)}>
+                Disband Team
+              </button>
+            </div>
+          )}
+          {userTeam.leader !== currentUser && (
+            <button onClick={() => handleLeaveTeam(userTeam._id)}>
+              Leave Team
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="available-users">
+        <h2>Available Users</h2>
+        <ul>
+          {users
+            .filter(
+              (user) => !(user.teams || []).some((t) => t._id === userTeam?._id)
+            )
+            .map((user) => (
+              <li key={user._id}>
+                {user.name}
+                {userTeam && currentUser === userTeam.leader && (
+                  <button
+                    onClick={() => handleAddMember(userTeam._id, user._id)}
+                  >
+                    Add to Team
+                  </button>
+                )}
+              </li>
+            ))}
+        </ul>
+      </div>
+
+      <div className="available-issues">
+        <h2>Available Issues</h2>
+        <ul>
+          {issues.map((issue) => (
+            <li key={issue._id}>
+              {issue.title}
+              {userTeam &&
+                userTeam.leader === currentUser &&
+                !userTeam.issue && (
+                  <button
+                    onClick={() => handleAssignIssue(userTeam._id, issue._id)}
+                  >
+                    Assign
+                  </button>
+                )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

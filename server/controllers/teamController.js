@@ -152,18 +152,70 @@ exports.assignIssueToTeam = async (req, res) => {
         .json({ message: "Only the team leader can assign issues" });
     }
 
+    if (team.issue) {
+      return res
+        .status(400)
+        .json({ message: "This team already has an assigned issue." });
+    }
+
     const issue = await Issue.findById(issueId);
     if (!issue) {
       return res.status(404).json({ message: "Issue not found" });
     }
 
     team.issue = issueId;
-    issue.status = "Assigned";
-
     await team.save();
-    await issue.save();
+    res.json(team);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
 
-    res.json({ team, issue });
+exports.removeIssueFromTeam = async (req, res) => {
+  const { teamId } = req.body;
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    if (team.leader.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Only the team leader can remove issues" });
+    }
+
+    team.issue = null;
+    await team.save();
+    res.json(team);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.resolveIssue = async (req, res) => {
+  const { teamId } = req.body;
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    if (team.leader.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Only the team leader can resolve issues" });
+    }
+
+    const issue = await Issue.findById(team.issue);
+    if (issue) {
+      issue.status = "resolved";
+      await issue.save();
+    }
+
+    team.issue = null;
+    await team.save();
+    res.json(team);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

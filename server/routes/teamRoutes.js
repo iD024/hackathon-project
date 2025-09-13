@@ -8,6 +8,8 @@ const {
   leaveTeam,
   disbandTeam,
   assignIssueToTeam,
+  removeIssueFromTeam,
+  resolveIssue,
 } = require("../controllers/teamController");
 const { protect } = require("../middlewares/authMiddleware");
 
@@ -18,5 +20,7 @@ router.post("/remove-member", protect, removeMember);
 router.post("/leave", protect, leaveTeam);
 router.post("/disband", protect, disbandTeam);
 router.post("/assign-issue", protect, assignIssueToTeam);
+router.post("/remove-issue", protect, removeIssueFromTeam);
+router.post("/resolve-issue", protect, resolveIssue);
 
 module.exports = router;
