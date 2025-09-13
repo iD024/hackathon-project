@@ -52,6 +52,7 @@ export const createIssue = async (issueData, files = []) => {
     // Append text data
     formData.append("title", issueData.title);
     formData.append("description", issueData.description);
+    // Stringify the location object before appending
     formData.append("location", JSON.stringify(issueData.location));
 
     // Append files
@@ -63,6 +64,7 @@ export const createIssue = async (issueData, files = []) => {
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
+    // NOTE: Do NOT set 'Content-Type'. The browser will handle it for FormData.
 
     const response = await fetch(`${API_URL}/issues`, {
       method: "POST",

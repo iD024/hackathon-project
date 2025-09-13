@@ -1,97 +1,194 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import SubmitIssueForm from "./SubmitIssueForm";
-import { Link } from "react-router-dom";
-import logo1 from "../assets/logo1.png";
-import "./css/SubmitIssuePage.css";
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom"; // 1. IMPORT HOOK
+import { createIssue } from "../services/apiService";
+import logo2 from "../assets/logo2.png";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import "../components/css/SubmitIssueForm.css";
 
-function SubmitIssuePage() {
-  const [location, setLocation] = useState(null);
-  const [locationError, setLocationError] = useState(null);
-  const navigate = useNavigate();
+function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate(); // 2. INITIALIZE HOOK
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          setLocationError(
-            "Unable to get your location. Please enable location access."
-          );
-        }
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const imageFiles = files
+      .filter((file) => file.type.startsWith("image/"))
+      .slice(0, 3 - selectedFiles.length);
+
+    if (imageFiles.length === 0) return;
+
+    const newPreviews = imageFiles.map((file) => ({
+      id: URL.createObjectURL(file),
+      name: file.name,
+    }));
+
+    setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    setFilePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  const removeFile = (index) => {
+    URL.revokeObjectURL(filePreviews[index].id);
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+    setFilePreviews(filePreviews.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title || !description || isSubmitting || !location) {
+      console.error(
+        "Submission prevented: Missing title, description, or location."
       );
-    } else {
-      setLocationError("Geolocation is not supported by this browser.");
+      return;
     }
-  }, []);
 
-  // Removed handleIssueSubmitted since we're redirecting in the form component
+    setIsSubmitting(true);
+
+    const newIssue = {
+      title,
+      description,
+      location: {
+        type: "Point",
+        coordinates: [location.lng, location.lat],
+      },
+    };
+
+    try {
+      // Pass the issue data and the actual file objects
+      const result = await createIssue(newIssue, selectedFiles);
+      if (result) {
+        setTitle("");
+        setDescription("");
+        setSelectedFiles([]);
+        setFilePreviews([]);
+        if (onIssueSubmitted) {
+          onIssueSubmitted();
+        }
+        navigate("/issues"); // Redirect on success
+      }
+    } catch (error) {
+      console.error("Error submitting issue:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ... (the rest of the component remains the same)
+  const getButtonText = () => {
+    if (isSubmitting) return "Submitting...";
+    if (!location && !locationError) return "Getting Location...";
+    if (locationError && !location) return "Location Unavailable";
+    return "Submit Issue";
+  };
 
   return (
-    <div className="submit-issue-page">
-      <div className="submit-issue-header">
-        <Link to="/" className="back-link">
-          <img src={logo1} alt="Civic Pulse" className="header-logo" />
-          <span>← Back to Home</span>
-        </Link>
-        <h1>Report an Issue</h1>
-        <p className="page-subtitle">
-          Help improve your community by reporting local issues. No account
-          required!
+    <div className="submit-form-container card-purple">
+      <div className="form-header">
+        <img src={logo2} alt="Report Issue" className="form-icon" />
+        <h3>Report a New Issue</h3>
+        <p className="form-subtitle">
+          Help improve your community by reporting local issues
         </p>
       </div>
+      <form onSubmit={handleSubmit} className="issue-form">
+        <div className="input-group">
+          <label htmlFor="title">Issue Title</label>
+          <input
+            id="title"
+            type="text"
+            className="input-purple"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Brief title for the issue (e.g., 'Pothole on Main Street')"
+            required
+          />
+        </div>
 
-      <div className="submit-issue-content">
-        <div className="submit-issue-info">
-          <h2>Why Report Issues?</h2>
-          <div className="info-cards">
-            <div className="info-card">
-              <div className="info-icon">🏙️</div>
-              <h3>Community Impact</h3>
-              <p>
-                Your reports help local authorities identify and fix problems
-                quickly.
-              </p>
+        <div className="input-group">
+          <label htmlFor="description">Issue Description</label>
+          <textarea
+            id="description"
+            className="input-purple"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe the issue in detail (e.g., 'Large pothole on Main St causing traffic delays')"
+            required
+            rows={4}
+          />
+        </div>
+
+        <div className="location-status">
+          {location && (
+            <div className="location-info">
+              <span className="location-icon">📍</span>
+              <span>
+                Location detected: {location.lat.toFixed(4)},{" "}
+                {location.lng.toFixed(4)}
+              </span>
             </div>
-            <div className="info-card">
-              <div className="info-icon">📱</div>
-              <h3>Easy & Quick</h3>
-              <p>Report issues in minutes with just a few clicks and photos.</p>
-            </div>
-            <div className="info-card">
-              <div className="info-icon">🔍</div>
-              <h3>AI-Powered</h3>
-              <p>
-                Our AI analyzes your report to prioritize and categorize issues.
-              </p>
-            </div>
+          )}
+          {locationError && (
+            <p className="location-error">⚠️ {locationError}</p>
+          )}
+        </div>
+
+        <div className="file-upload-section">
+          <label className="file-upload-label">
+            <ArrowUpTrayIcon className="upload-icon" width={18} />
+            Upload Photos (Max 3)
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              style={{ display: "none" }}
+              disabled={selectedFiles.length >= 3}
+            />
+          </label>
+          <span className="file-upload-hint">
+            {selectedFiles.length}/3 photos selected
+          </span>
+
+          <div className="file-previews">
+            {filePreviews.map((preview, index) => (
+              <div key={preview.id} className="file-preview">
+                <div className="file-preview-image">
+                  <img src={preview.id} alt={preview.name} />
+                  <button
+                    type="button"
+                    className="remove-file-btn"
+                    onClick={() => removeFile(index)}
+                    aria-label="Remove image"
+                  >
+                    <XMarkIcon width={16} />
+                  </button>
+                </div>
+                <div className="file-name">{preview.name}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="submit-issue-form-container">
-          <SubmitIssueForm location={location} locationError={locationError} />
-        </div>
-      </div>
-
-      <div className="submit-issue-footer">
-        <p>
-          Want to track issues and join teams?{" "}
-          <Link to="/register" className="footer-link">
-            Create an account
-          </Link>{" "}
-          or{" "}
-          <Link to="/login" className="footer-link">
-            sign in
-          </Link>
-        </p>
-      </div>
+        <button
+          type="submit"
+          className={`btn-purple submit-btn ${
+            isSubmitting || !location ? "disabled" : ""
+          }`}
+          disabled={isSubmitting || !location}
+        >
+          <span className="btn-icon">
+            {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
+          </span>
+          {getButtonText()}
+        </button>
+      </form>
     </div>
   );
 }
 
-export default SubmitIssuePage;
+export default SubmitIssueForm;

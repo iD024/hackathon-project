@@ -5,16 +5,19 @@ const {
   getMyIssues,
   getResolvedIssues,
 } = require("../controllers/IssueController");
-// Import both protect and optionalProtect middlewares
 const { protect, optionalProtect } = require("../middlewares/authMiddleware");
+const upload = require("../middleware/upload"); // Import multer middleware
 
 const router = express.Router();
 
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// CORRECTED: The POST route now uses optionalProtect to handle both authenticated
-// and anonymous users. It no longer uses any file upload middleware.
-router.route("/").get(getIssues).post(optionalProtect, reportIssue);
+// CORRECTED: Re-add the multer middleware to handle file uploads.
+// Use optionalProtect to allow submissions from both guests and logged-in users.
+router
+  .route("/")
+  .get(getIssues)
+  .post(optionalProtect, upload.array("images", 5), reportIssue);
 
 module.exports = router;

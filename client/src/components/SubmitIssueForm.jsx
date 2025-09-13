@@ -1,21 +1,18 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom"; // 1. IMPORT HOOK
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
 import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import "../components/css/SubmitIssueForm.css";
 
-function SubmitIssueForm({
-  onIssueSubmitted,
-  onCancel,
-  location,
-  locationError,
-}) {
+function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate(); // 2. INITIALIZE HOOK
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -27,7 +24,6 @@ function SubmitIssueForm({
 
     const newPreviews = imageFiles.map((file) => ({
       id: URL.createObjectURL(file),
-      file,
       name: file.name,
     }));
 
@@ -36,18 +32,19 @@ function SubmitIssueForm({
   };
 
   const removeFile = (index) => {
-    const newFiles = [...selectedFiles];
-    const newPreviews = [...filePreviews];
-    URL.revokeObjectURL(newPreviews[index].id);
-    newFiles.splice(index, 1);
-    newPreviews.splice(index, 1);
-    setSelectedFiles(newFiles);
-    setFilePreviews(newPreviews);
+    URL.revokeObjectURL(filePreviews[index].id);
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+    setFilePreviews(filePreviews.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || isSubmitting || !location) return;
+    if (!title || !description || isSubmitting || !location) {
+      console.error(
+        "Submission prevented: Missing title, description, or location."
+      );
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -61,9 +58,17 @@ function SubmitIssueForm({
     };
 
     try {
+      // Pass the issue data and the actual file objects
       const result = await createIssue(newIssue, selectedFiles);
-      if (result && onIssueSubmitted) {
-        onIssueSubmitted(); // Let the parent component handle success
+      if (result) {
+        setTitle("");
+        setDescription("");
+        setSelectedFiles([]);
+        setFilePreviews([]);
+        if (onIssueSubmitted) {
+          onIssueSubmitted();
+        }
+        navigate("/issues"); // Redirect on success
       }
     } catch (error) {
       console.error("Error submitting issue:", error);
@@ -72,6 +77,7 @@ function SubmitIssueForm({
     }
   };
 
+  // ... (the rest of the component remains the same)
   const getButtonText = () => {
     if (isSubmitting) return "Submitting...";
     if (!location && !locationError) return "Getting Location...";
@@ -168,23 +174,18 @@ function SubmitIssueForm({
           </div>
         </div>
 
-        <div className="form-actions-submit">
-          <button
-            type="submit"
-            className={`btn-purple submit-btn ${
-              isSubmitting || !location ? "disabled" : ""
-            }`}
-            disabled={isSubmitting || !location}
-          >
-            <span className="btn-icon">
-              {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
-            </span>
-            {getButtonText()}
-          </button>
-          <button type="button" className="btn-cancel" onClick={onCancel}>
-            Cancel
-          </button>
-        </div>
+        <button
+          type="submit"
+          className={`btn-purple submit-btn ${
+            isSubmitting || !location ? "disabled" : ""
+          }`}
+          disabled={isSubmitting || !location}
+        >
+          <span className="btn-icon">
+            {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
+          </span>
+          {getButtonText()}
+        </button>
       </form>
     </div>
   );

@@ -1,11 +1,8 @@
 const Issue = require("../models/issue");
-const axios = require("axios");
-// The server-side uploader is no longer needed here as the client handles it.
 
 const reportIssue = async (req, res) => {
   try {
-    // Destructure title, description, location, and images from the JSON body
-    const { title, description, location, images } = req.body;
+    const { title, description, location } = req.body;
 
     if (!description || !location) {
       return res
@@ -13,15 +10,20 @@ const reportIssue = async (req, res) => {
         .json({ message: "Description and location are required." });
     }
 
-    // The client sends a fully-formed JSON object.
-    // `location` is an object, and `images` is an array of URLs.
-    // No JSON parsing or server-side upload is needed.
+    // Since location comes from FormData, it will be a string. We need to parse it.
+    const parsedLocation = JSON.parse(location);
+
+    // Get the filenames of uploaded images from req.files, which is handled by multer.
+    let imageFilenames = [];
+    if (req.files && req.files.length > 0) {
+      imageFilenames = req.files.map((file) => file.filename);
+    }
 
     const newIssue = await Issue.create({
       title,
       description,
-      location, // Use the location object directly
-      images: images || [], // Use the image URLs from the body, default to empty array
+      location: parsedLocation,
+      images: imageFilenames, // Save the array of filenames
       reportedBy: req.user ? req.user._id : null,
     });
 
@@ -34,11 +36,8 @@ const reportIssue = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get all civic issues
- * @route   GET /api/v1/issues
- * @access  Public
- */
+// ... (The rest of the file remains the same)
+
 const getIssues = async (req, res) => {
   try {
     const issues = await Issue.find()
@@ -53,11 +52,6 @@ const getIssues = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get logged in user's issues
- * @route   GET /api/v1/issues/my-issues
- * @access  Private
- */
 const getMyIssues = async (req, res) => {
   try {
     const issues = await Issue.find({ reportedBy: req.user._id }).populate(
@@ -73,11 +67,6 @@ const getMyIssues = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get all resolved issues
- * @route   GET /api/v1/issues/resolved
- * @access  Public
- */
 const getResolvedIssues = async (req, res) => {
   try {
     const resolvedIssues = await Issue.find({ status: "Resolved" })
