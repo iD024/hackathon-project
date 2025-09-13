@@ -7,6 +7,8 @@ import {
   removeMemberFromTeam,
   leaveTeam,
   disbandTeam,
+  getIssues,
+  assignIssueToTeam,
 } from "../services/apiService";
 import "./css/TeamPage.css";
 import { jwtDecode } from "jwt-decode";
@@ -16,6 +18,7 @@ const TeamPage = () => {
   const [users, setUsers] = useState([]);
   const [teamName, setTeamName] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [issues, setIssues] = useState([]);
 
   const fetchAllData = async () => {
     const token = localStorage.getItem("civicPulseToken");
@@ -29,6 +32,8 @@ const TeamPage = () => {
     }
     const usersData = await getUsers();
     setUsers(usersData);
+    const issuesData = await getIssues();
+    setIssues(issuesData);
   };
 
   useEffect(() => {
@@ -62,6 +67,11 @@ const TeamPage = () => {
 
   const handleDisbandTeam = async (teamId) => {
     await disbandTeam({ teamId });
+    fetchAllData();
+  };
+
+  const handleAssignIssue = async (teamId, issueId) => {
+    await assignIssueToTeam({ teamId, issueId });
     fetchAllData();
   };
 
@@ -143,6 +153,27 @@ const TeamPage = () => {
                   </select>
                   <button type="submit">Add Member</button>
                 </form>
+                <div className="assign-issue-form">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const issueId = e.target.elements.issue.value;
+                      handleAssignIssue(team._id, issueId);
+                    }}
+                  >
+                    <select name="issue">
+                      <option value="">Select an Issue to Assign</option>
+                      {issues
+                        .filter((issue) => issue.status === "Reported")
+                        .map((issue) => (
+                          <option key={issue._id} value={issue._id}>
+                            {issue.description}
+                          </option>
+                        ))}
+                    </select>
+                    <button type="submit">Assign Issue</button>
+                  </form>
+                </div>
                 <button onClick={() => handleDisbandTeam(team._id)}>
                   Disband Team
                 </button>

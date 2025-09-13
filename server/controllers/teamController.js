@@ -98,11 +98,9 @@ exports.leaveTeam = async (req, res) => {
     }
 
     if (team.leader.toString() === req.user.id) {
-      return res
-        .status(400)
-        .json({
-          message: "Team leader cannot leave the team, must disband it",
-        });
+      return res.status(400).json({
+        message: "Team leader cannot leave the team, must disband it",
+      });
     }
 
     team.members.pull(req.user.id);
@@ -127,8 +125,45 @@ exports.disbandTeam = async (req, res) => {
         .json({ message: "Only the team leader can disband the team" });
     }
 
+    // Find issues assigned to the team and update them
+    await Issue.updateMany(
+      { _id: { $in: team.issue } },
+      { $set: { status: "Reported", aiCategory: "Pending Analysis" } }
+    );
+
     await Team.findByIdAndDelete(teamId);
     res.json({ message: "Team disbanded successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.assignIssueToTeam = async (req, res) => {
+  const { teamId, issueId } = req.body;
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    if (team.leader.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Only the team leader can assign issues" });
+    }
+
+    const issue = await Issue.findById(issueId);
+    if (!issue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    team.issue = issueId;
+    issue.status = "Assigned";
+
+    await team.save();
+    await issue.save();
+
+    res.json({ team, issue });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

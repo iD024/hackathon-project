@@ -208,3 +208,24 @@ export const disbandTeam = async (data) => {
     return null;
   }
 };
+
+export const assignIssueToTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/assign-issue`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to assign issue");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to assign issue:", error);
+    return null;
+  }
+};

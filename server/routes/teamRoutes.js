@@ -7,14 +7,16 @@ const {
   removeMember,
   leaveTeam,
   disbandTeam,
+  assignIssueToTeam,
 } = require("../controllers/teamController");
 const { protect } = require("../middlewares/authMiddleware");
 
-router.post("/", protect, createTeam);
+router.post("/create", protect, createTeam);
 router.get("/", getTeams);
 router.post("/members", protect, addMember);
-router.post("/members/remove", protect, removeMember);
+router.post("/remove-member", protect, removeMember);
 router.post("/leave", protect, leaveTeam);
 router.post("/disband", protect, disbandTeam);
+router.post("/assign-issue", protect, assignIssueToTeam);
 
 module.exports = router;
