@@ -69,22 +69,14 @@ const reportIssue = async (req, res) => {
       });
     }
 
-    // Handle single image upload
-    let imagePath = '';
-    let photoUrl = '';
-    
-    if (req.file) {
-      imagePath = req.file.path;
-      // Create a URL that can be accessed from the client
-      photoUrl = `/${imagePath.replace(/\\/g, '/')}`; // Convert Windows paths to URL format
-    }
+    // Get file paths if files were uploaded
+    const images = req.files ? req.files.map(file => file.path) : [];
 
     const newIssue = await Issue.create({
       title,
       description,
       location,
-      images: imagePath ? [imagePath] : [],
-      photoUrl: photoUrl,
+      images,
       reportedBy: req.user._id,
       aiCategory: issueCategory,
       aiSeverity: issueSeverity,

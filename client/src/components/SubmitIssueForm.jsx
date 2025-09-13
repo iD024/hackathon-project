@@ -8,38 +8,43 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [filePreview, setFilePreview] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files);
     
-    if (!file || !file.type.startsWith('image/')) {
-      alert('Please select a valid image file');
-      return;
-    }
+    // Filter to only allow images and limit to 3 files
+    const imageFiles = files
+      .filter(file => file.type.startsWith('image/'))
+      .slice(0, 3 - selectedFiles.length);
     
-    // Clear previous file preview if exists
-    if (filePreview) {
-      URL.revokeObjectURL(filePreview);
-    }
+    if (imageFiles.length === 0) return;
     
-    // Create preview for the new file
-    const previewUrl = URL.createObjectURL(file);
-    setFilePreview(previewUrl);
-    setSelectedFile(file);
+    // Create previews for the new files
+    const newPreviews = imageFiles.map(file => ({
+      id: URL.createObjectURL(file),
+      file,
+      name: file.name
+    }));
+    
+    setSelectedFiles(prev => [...prev, ...imageFiles]);
+    setFilePreviews(prev => [...prev, ...newPreviews]);
   };
 
-  const removeFile = () => {
-    if (filePreview) {
-      URL.revokeObjectURL(filePreview);
-      setFilePreview(null);
-    }
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const removeFile = (index) => {
+    const newFiles = [...selectedFiles];
+    const newPreviews = [...filePreviews];
+    
+    // Revoke the object URL to avoid memory leaks
+    URL.revokeObjectURL(newPreviews[index].id);
+    
+    newFiles.splice(index, 1);
+    newPreviews.splice(index, 1);
+    
+    setSelectedFiles(newFiles);
+    setFilePreviews(newPreviews);
   };
 
   const handleSubmit = async (e) => {
@@ -58,16 +63,17 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
     };
 
     try {
-      const result = await createIssue(newIssue, selectedFile ? [selectedFile] : []);
+      const result = await createIssue(newIssue, selectedFiles);
       if (result) {
         setTitle("");
         setDescription("");
-        removeFile();
+        setSelectedFiles([]);
+        setFilePreviews([]);
         onIssueSubmitted();
       }
     } catch (error) {
       console.error("Error submitting issue:", error);
-      alert('Failed to submit issue. Please try again.');
+      // You might want to show an error message to the user here
     } finally {
       setIsSubmitting(false);
     }
@@ -124,49 +130,42 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
           {locationError && <p className="location-error">⚠️ {locationError}</p>}
         </div>
 
-        <div className="file-upload-container">
-          {!filePreview ? (
-            <div 
-              className="file-upload-box"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="file-input"
-                accept="image/*"
-              />
-              <div className="upload-icon">
-                <PhotoIcon className="h-8 w-8 text-gray-400" />
-              </div>
-              <p>Click to upload an image (optional)</p>
-              <p className="file-upload-hint">JPG, PNG, or GIF (max 5MB)</p>
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="relative group">
-                <img 
-                  src={filePreview} 
-                  alt="Preview" 
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                  <button
-                    type="button"
-                    onClick={removeFile}
-                    className="bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100 transition-all"
-                    title="Remove image"
+        <div className="file-upload-section">
+          <label className="file-upload-label">
+            <ArrowUpTrayIcon className="upload-icon" width={18} />
+            Upload Photos (Max 3)
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              disabled={selectedFiles.length >= 3}
+            />
+          </label>
+          <span className="file-upload-hint">
+            {selectedFiles.length}/3 photos selected
+          </span>
+          
+          <div className="file-previews">
+            {filePreviews.map((preview, index) => (
+              <div key={preview.id} className="file-preview">
+                <div className="file-preview-image">
+                  <img src={preview.id} alt={preview.name} />
+                  <button 
+                    type="button" 
+                    className="remove-file-btn"
+                    onClick={() => removeFile(index)}
+                    aria-label="Remove image"
                   >
-                    <XMarkIcon className="h-5 w-5 text-gray-800" />
+                    <XMarkIcon width={16} />
                   </button>
                 </div>
+                <div className="file-name">{preview.name}</div>
               </div>
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                Click the image to change
-              </p>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
         
         <button 
