@@ -116,8 +116,28 @@ const getMyIssues = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get all resolved issues
+ * @route   GET /api/v1/issues/resolved
+ * @access  Public
+ */
+const getResolvedIssues = async (req, res) => {
+  try {
+    const resolvedIssues = await Issue.find({ status: 'Resolved' })
+      .populate('reportedBy', 'name email')
+      .sort({ updatedAt: -1 });
+    res.status(200).json(resolvedIssues);
+  } catch (error) {
+    console.error("ERROR FETCHING RESOLVED ISSUES:", error);
+    res
+      .status(400)
+      .json({ message: "Error fetching resolved issues", error: error.message });
+  }
+};
+
 module.exports = {
   reportIssue,
   getIssues,
   getMyIssues,
+  getResolvedIssues,
 };

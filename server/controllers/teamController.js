@@ -164,6 +164,10 @@ exports.assignIssueToTeam = async (req, res) => {
       return res.status(404).json({ message: "Issue not found" });
     }
 
+    // Update issue status to assigned
+    issue.status = "Assigned";
+    await issue.save();
+    
     team.issue = issueId;
     await team.save();
     res.json(team);
@@ -186,6 +190,15 @@ exports.removeIssueFromTeam = async (req, res) => {
         .json({ message: "Only the team leader can remove issues" });
     }
 
+    // Update issue status back to reported when unassigned
+    if (team.issue) {
+      const issue = await Issue.findById(team.issue);
+      if (issue) {
+        issue.status = "Reported";
+        await issue.save();
+      }
+    }
+
     team.issue = null;
     await team.save();
     res.json(team);
@@ -197,27 +210,42 @@ exports.removeIssueFromTeam = async (req, res) => {
 exports.resolveIssue = async (req, res) => {
   const { teamId } = req.body;
   try {
-    const team = await Team.findById(teamId);
+    console.log("Resolving issue for team:", teamId);
+    console.log("User ID:", req.user.id);
+
+    const team = await Team.findById(teamId).populate('issue');
     if (!team) {
+      console.log("Team not found");
       return res.status(404).json({ message: "Team not found" });
     }
 
+    console.log("Team found:", team.name);
+    console.log("Team leader:", team.leader.toString());
+
     if (team.leader.toString() !== req.user.id) {
+      console.log("Permission denied - not team leader");
       return res
         .status(403)
         .json({ message: "Only the team leader can resolve issues" });
     }
 
-    const issue = await Issue.findById(team.issue);
-    if (issue) {
-      issue.status = "resolved";
-      await issue.save();
+    if (!team.issue) {
+      console.log("No issue assigned to team");
+      return res.status(400).json({ message: "No issue assigned to this team" });
     }
 
+    console.log("Resolving issue:", team.issue._id);
+    // Update the issue status to "Resolved" instead of deleting
+    await Issue.findByIdAndUpdate(team.issue._id, { status: "Resolved" });
+
+    // Remove the issue from the team so they can take on new issues
     team.issue = null;
     await team.save();
+    
+    console.log("Issue resolved successfully");
     res.json(team);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error resolving issue:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

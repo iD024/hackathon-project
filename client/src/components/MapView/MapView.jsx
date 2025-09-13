@@ -46,8 +46,17 @@ function MapView({ issues, userLocation }) {
     setActiveMarker(markerId);
   };
 
-  const defaultCenter = { lat: 26.853, lng: 75.66 }; // Jaipur area
-  const mapCenter = userLocation || defaultCenter;
+  // If there's only one issue, center on it; otherwise use user location or default
+  const mapCenter = useMemo(() => {
+    const defaultCenter = { lat: 26.853, lng: 75.66 }; // Jaipur area
+    if (issues.length === 1) {
+      return {
+        lat: issues[0].location.coordinates[1],
+        lng: issues[0].location.coordinates[0]
+      };
+    }
+    return userLocation || defaultCenter;
+  }, [issues, userLocation]);
 
   // --- RENDER LOGIC ---
   if (loadError) {

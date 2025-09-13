@@ -22,7 +22,10 @@ function Navbar() {
       <div className="navbar-links">
         <Link to="/home">Home</Link>
         {localStorage.getItem("civicPulseToken") && (
-          <Link to="/teams">Teams</Link>
+          <>
+            <Link to="/teams">Teams</Link>
+            <Link to="/resolved">Resolved Issues</Link>
+          </>
         )}
       </div>
       {/* Show logout button if a token exists */}

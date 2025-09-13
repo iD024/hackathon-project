@@ -1,31 +1,91 @@
 .team-page {
   padding: 2rem;
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: white;
 }
 
 .create-team-form,
 .add-member-form {
   margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .create-team-form h2,
 .add-member-form h2 {
   margin-top: 0;
+  color: #fff;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
 }
 
 .create-team-form form,
 .add-member-form form {
   display: flex;
   gap: 1rem;
+  align-items: center;
+}
+
+.create-team-form input {
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.create-team-form button {
+  padding: 0.8rem 1.6rem;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-team-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(238, 90, 36, 0.4);
 }
 
 .teams-list .team-card {
-  border: 1px solid #eee;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-width: 1200px;
+}
+
+.teams-list .team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+}
+
+.teams-list .team-card h3 {
+  margin: 0 0 1rem 0;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.teams-list .team-card p {
+  margin: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
 }
 
 .team-members .dropdown {
@@ -34,12 +94,14 @@
 }
 
 .team-members .dropbtn {
-  background-color: #4caf50;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   color: white;
-  padding: 8px;
+  padding: 8px 16px;
   font-size: 14px;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .team-members .dropdown-content {
@@ -67,7 +129,8 @@
 }
 
 .team-members .dropdown:hover .dropbtn {
-  background-color: #3e8e41;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(238, 90, 36, 0.4);
 }
 
 /* Available Issues Styling */
@@ -102,13 +165,17 @@
 }
 
 .view-details-btn {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  padding: 8px 16px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 .assign-btn {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   color: white;
+  transition: all 0.3s ease;
 }
 
 /* Modal Styling */
@@ -201,4 +268,216 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Issue Action Buttons in Modal */
+.issue-actions {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.team-issue-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.assign-btn,
+.unassign-btn,
+.complete-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.assign-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.assign-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(238, 90, 36, 0.4);
+}
+
+.unassign-btn {
+  background: linear-gradient(135deg, #ffa726, #ff9800);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.unassign-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.complete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(118, 75, 162, 0.4);
+}
+
+/* Assigned Issue Card Styling */
+.assigned-issue-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  max-width: 1200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.issue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+}
+
+.issue-header h3 {
+  margin: 0;
+  color: #495057;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-assigned {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.status-reported {
+  background-color: #6c757d;
+  color: white;
+}
+
+.issue-content {
+  margin-bottom: 20px;
+}
+
+.issue-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 15px 0;
+}
+
+.issue-description {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+}
+
+.issue-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.priority,
+.category {
+  color: #495057;
+  font-weight: 500;
+}
+
+.no-issue-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  max-width: 1200px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+}
+
+/* Issue actions styling */
+.issue-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.assign-btn,
+.unassign-btn,
+.complete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.assign-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.assign-btn:hover {
+  background-color: #0056b3;
+}
+
+.unassign-btn {
+  background: linear-gradient(135deg, #ffa726, #ff9800);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.unassign-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+}
+
+.complete-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.complete-btn:hover {
+  background-color: #1e7e34;
+}
+
+.team-issue-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.view-details-btn {
+  background-color: #17a2b8;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.view-details-btn:hover {
+  background-color: #138496;
 }

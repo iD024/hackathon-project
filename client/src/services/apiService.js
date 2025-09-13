@@ -263,7 +263,8 @@ export const resolveIssue = async (data) => {
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      throw new Error("Failed to resolve issue");
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to resolve issue");
     }
     return await response.json();
   } catch (error) {
@@ -329,5 +330,18 @@ export const respondToInvitation = async (data) => {
   } catch (error) {
     console.error("Failed to respond to invitation:", error);
     return null;
+  }
+};
+
+export const getResolvedIssues = async () => {
+  try {
+    const response = await fetch(`${API_URL}/issues/resolved`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch resolved issues:", error);
+    return [];
   }
 };

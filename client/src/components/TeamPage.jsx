@@ -76,16 +76,19 @@ const TeamPage = () => {
 
   const handleAssignIssue = async (teamId, issueId) => {
     await assignIssueToTeam({ teamId, issueId });
+    setSelectedIssue(null); // Close modal after assignment
     fetchAllData();
   };
 
   const handleRemoveIssue = async (teamId) => {
     await removeIssueFromTeam({ teamId });
+    setSelectedIssue(null); // Close modal after unassignment
     fetchAllData();
   };
 
   const handleResolveIssue = async (teamId) => {
     await resolveIssue({ teamId });
+    setSelectedIssue(null); // Close modal after completion
     fetchAllData();
   };
 
@@ -164,23 +167,36 @@ const TeamPage = () => {
         <div className="user-team">
           <h2>Your Team: {userTeam.name}</h2>
           {userTeam.issue ? (
-            <div className="assigned-issue">
-              <h3>Assigned Issue</h3>
-              <p>{userTeam.issue.title}</p>
-              <p>{userTeam.issue.description}</p>
-              {userTeam.leader === currentUser && (
-                <div>
-                  <button onClick={() => handleRemoveIssue(userTeam._id)}>
-                    Remove Issue
+            <div className="assigned-issue-card">
+              <div className="issue-header">
+                <h3>Assigned Issue</h3>
+                <span className={`status-badge status-${userTeam.issue.status?.toLowerCase()}`}>
+                  {userTeam.issue.status || 'Assigned'}
+                </span>
+              </div>
+              <div className="issue-content">
+                <h4 className="issue-title">{userTeam.issue.title || 'Untitled Issue'}</h4>
+                <p className="issue-description">{userTeam.issue.description}</p>
+                <div className="issue-meta">
+                  <span className="priority">Priority: {userTeam.issue.aiSeverity || 'Medium'}</span>
+                  <span className="category">Category: {userTeam.issue.aiCategory || 'General'}</span>
+                </div>
+              </div>
+              {userTeam.leader._id === currentUser && (
+                <div className="issue-actions">
+                  <button onClick={() => handleRemoveIssue(userTeam._id)} className="unassign-btn">
+                    Unassign Issue
                   </button>
-                  <button onClick={() => handleResolveIssue(userTeam._id)}>
-                    Mark as Done
+                  <button onClick={() => handleResolveIssue(userTeam._id)} className="complete-btn">
+                    Mark as Completed
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <p>No issue assigned.</p>
+            <div className="no-issue-card">
+              <p>No issue assigned to your team yet.</p>
+            </div>
           )}
           <div className="team-members">
             <strong>Members:</strong>
@@ -238,7 +254,7 @@ const TeamPage = () => {
         <h2>Available Issues</h2>
         <ul>
           {issues
-            .filter((issue) => !issue.assignedTo)
+            .filter((issue) => issue.status === "Reported")
             .map((issue) => (
               <li key={issue._id} className="issue-item">
                 <div className="issue-content">
@@ -251,7 +267,7 @@ const TeamPage = () => {
                       View Details
                     </button>
                     {userTeam &&
-                      userTeam.leader === currentUser &&
+                      userTeam.leader._id === currentUser &&
                       !userTeam.issue && (
                         <button
                           onClick={() =>
@@ -279,8 +295,44 @@ const TeamPage = () => {
               <strong>Description:</strong> {selectedIssue.description}
             </p>
             <p>
-              <strong>Created by:</strong> {selectedIssue.createdBy?.name}
+              <strong>Created by:</strong> {selectedIssue.reportedBy?.name || 'Anonymous'}
             </p>
+            <p>
+              <strong>Status:</strong> {selectedIssue.status}
+            </p>
+            <p>
+              <strong>Priority:</strong> {selectedIssue.aiSeverity || 'Pending'}
+            </p>
+            
+            {/* Action buttons */}
+            <div className="issue-actions">
+              {userTeam && userTeam.leader._id === currentUser && !userTeam.issue && selectedIssue.status === "Reported" && (
+                <button
+                  onClick={() => handleAssignIssue(userTeam._id, selectedIssue._id)}
+                  className="assign-btn"
+                >
+                  Assign to My Team
+                </button>
+              )}
+              
+              {userTeam && userTeam.issue && userTeam.issue._id === selectedIssue._id && userTeam.leader._id === currentUser && (
+                <div className="team-issue-actions">
+                  <button
+                    onClick={() => handleRemoveIssue(userTeam._id)}
+                    className="unassign-btn"
+                  >
+                    Unassign Issue
+                  </button>
+                  <button
+                    onClick={() => handleResolveIssue(userTeam._id)}
+                    className="complete-btn"
+                  >
+                    Mark as Completed
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <div className="map-container">
               <MapView issues={[selectedIssue]} />
             </div>
