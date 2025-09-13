@@ -10,10 +10,9 @@ function HomePage() {
   const [issues, setIssues] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState("");
-  const [showSubmitForm, setShowSubmitForm] = useState(false); // State to toggle the form
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
   const navigate = useNavigate();
 
-  // Token check
   useEffect(() => {
     const token = localStorage.getItem("civicPulseToken");
     if (!token) {
@@ -21,7 +20,6 @@ function HomePage() {
     }
   }, [navigate]);
 
-  // Fetch user's location
   useEffect(() => {
     const geoOptions = {
       enableHighAccuracy: true,
@@ -40,9 +38,7 @@ function HomePage() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setLocationError(
-            "Location access denied. Please enable it in your browser settings."
-          );
+          setLocationError("Location access denied. Centering on Jaipur.");
         },
         geoOptions
       );
@@ -51,19 +47,21 @@ function HomePage() {
     }
   }, []);
 
-  // Function to fetch issues from the API
   const fetchIssues = useCallback(async () => {
-    const data = await getIssues();
-    setIssues(
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    );
+    try {
+      const data = await getIssues();
+      setIssues(
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      );
+    } catch (error) {
+      console.error("Failed to fetch issues:", error);
+    }
   }, []);
 
   useEffect(() => {
     fetchIssues();
   }, [fetchIssues]);
 
-  // Handler to close the form and refresh the issue feed after submission
   const handleIssueSubmitted = () => {
     fetchIssues();
     setShowSubmitForm(false);
@@ -76,14 +74,14 @@ function HomePage() {
         {showSubmitForm ? (
           <SubmitIssueForm
             onIssueSubmitted={handleIssueSubmitted}
-            onCancel={() => setShowSubmitForm(false)} // Pass a cancel handler
+            onCancel={() => setShowSubmitForm(false)}
             location={userLocation}
             locationError={locationError}
           />
         ) : (
-          <div className="report-issue-prompt card-purple">
+          <div className="report-issue-prompt">
             <button
-              className="btn-purple btn-report"
+              className="btn-report"
               onClick={() => setShowSubmitForm(true)}
             >
               🚀 Report a New Issue

@@ -3,9 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
 import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import "../components/css/SubmitIssueForm.css";
+import "./css/SubmitIssueForm.css";
 
-function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
+function SubmitIssueForm({
+  onIssueSubmitted,
+  onCancel,
+  location,
+  locationError,
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,9 +46,6 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !description || isSubmitting || !location) {
-      console.error(
-        "Submission prevented: Missing title, description, or location."
-      );
       return;
     }
 
@@ -61,10 +63,6 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
     try {
       const result = await createIssue(newIssue, selectedFiles);
       if (result) {
-        setTitle("");
-        setDescription("");
-        setSelectedFiles([]);
-        setFilePreviews([]);
         if (onIssueSubmitted) {
           onIssueSubmitted();
         }
@@ -85,7 +83,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   };
 
   return (
-    <div className="submit-form-container card-purple">
+    <div className="submit-form-container">
       <div className="form-header">
         <img src={logo2} alt="Report Issue" className="form-icon" />
         <h3>Report a New Issue</h3>
@@ -102,7 +100,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             className="input-purple"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Brief title for the issue (e.g., 'Pothole on Main Street')"
+            placeholder="e.g., 'Pothole on Main Street'"
             required
           />
         </div>
@@ -114,7 +112,7 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             className="input-purple"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the issue in detail (e.g., 'Large pothole on Main St causing traffic delays')"
+            placeholder="Describe the issue in detail..."
             required
             rows={4}
           />
@@ -123,11 +121,8 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
         <div className="location-status">
           {location && (
             <div className="location-info">
-              <span className="location-icon">📍</span>
-              <span>
-                Location detected: {location.lat.toFixed(4)},{" "}
-                {location.lng.toFixed(4)}
-              </span>
+              📍 Location detected: {location.lat.toFixed(4)},{" "}
+              {location.lng.toFixed(4)}
             </div>
           )}
           {locationError && (
@@ -136,55 +131,55 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
         </div>
 
         <div className="file-upload-section">
-          <label className="file-upload-label">
-            <ArrowUpTrayIcon className="upload-icon" width={18} />
-            Upload Photos (Max 3)
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              multiple
-              style={{ display: "none" }}
-              disabled={selectedFiles.length >= 3}
-            />
+          <label className="file-upload-label" htmlFor="file-upload">
+            <ArrowUpTrayIcon className="upload-icon" />
+            <span>Upload Photos (Max 3)</span>
           </label>
-          <span className="file-upload-hint">
-            {selectedFiles.length}/3 photos selected
-          </span>
+          <input
+            id="file-upload"
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            multiple
+            style={{ display: "none" }}
+            disabled={selectedFiles.length >= 3}
+          />
 
           <div className="file-previews">
             {filePreviews.map((preview, index) => (
               <div key={preview.id} className="file-preview">
-                <div className="file-preview-image">
-                  <img src={preview.id} alt={preview.name} />
-                  <button
-                    type="button"
-                    className="remove-file-btn"
-                    onClick={() => removeFile(index)}
-                    aria-label="Remove image"
-                  >
-                    <XMarkIcon width={16} />
-                  </button>
-                </div>
-                <div className="file-name">{preview.name}</div>
+                <img
+                  src={preview.id}
+                  alt={preview.name}
+                  className="preview-image"
+                />
+                <button
+                  type="button"
+                  className="remove-file-btn"
+                  onClick={() => removeFile(index)}
+                >
+                  <XMarkIcon />
+                </button>
               </div>
             ))}
           </div>
         </div>
 
-        <button
-          type="submit"
-          className={`btn-purple submit-btn ${
-            isSubmitting || !location ? "disabled" : ""
-          }`}
-          disabled={isSubmitting || !location}
-        >
-          <span className="btn-icon">
-            {isSubmitting ? "⏳" : location ? "🚀" : "📍"}
-          </span>
-          {getButtonText()}
-        </button>
+        <div className="form-actions-submit">
+          <button type="button" className="btn-cancel" onClick={onCancel}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={`submit-btn ${
+              isSubmitting || !location ? "disabled" : ""
+            }`}
+            disabled={isSubmitting || !location}
+          >
+            {getButtonText()}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,70 +1,82 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  MarkerClustererF, // Import the Marker Clusterer
 } from "@react-google-maps/api";
 
-// --- STYLES (Moved outside for clarity) ---
 const containerStyle = {
   width: "100%",
   height: "100%",
   borderRadius: "8px",
-  border: "1px solid #bdc3c7",
 };
 
 const wrapperStyle = {
-  flexBasis: "65%",
-  height: "calc(100vh - 90px)",
-  padding: "10px",
+  flex: 1,
+  height: "calc(100vh - 130px)",
+  minWidth: 0,
 };
 
-// --- COMPONENT ---
+// --- Custom SVG for the issue markers ---
+const issueMarkerIcon = {
+  url: `data:image/svg+xml,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233d402b" width="36px" height="36px">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>`,
+  scaledSize: { width: 36, height: 36 },
+};
+
 function MapView({ issues, userLocation }) {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: ["marker"],
   });
 
   const [activeMarker, setActiveMarker] = useState(null);
+  const mapRef = useRef(null);
 
-  // --- ICONS (Memoized for performance) ---
-  // We use useMemo to create these icons only once, AFTER the map script has loaded.
   const userLocationIcon = useMemo(() => {
-    if (isLoaded) {
-      return {
-        url: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiIgd2lkdGg9IjM2cHgiIGhlaWdodD0iMzZweCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzQyODVGNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9zdmc+",
-        scaledSize: new window.google.maps.Size(24, 24),
-        anchor: new window.google.maps.Point(12, 12),
-      };
-    }
-    return null;
+    if (!isLoaded) return null;
+    return {
+      path: window.google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: "#4285F4",
+      fillOpacity: 1,
+      strokeColor: "white",
+      strokeWeight: 2,
+    };
   }, [isLoaded]);
 
-  const handleActiveMarker = (markerId) => {
-    setActiveMarker(markerId);
-  };
+  useEffect(() => {
+    if (mapRef.current && issues && issues.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      issues.forEach((issue) => {
+        bounds.extend({
+          lat: issue.location.coordinates[1],
+          lng: issue.location.coordinates[0],
+        });
+      });
+      mapRef.current.fitBounds(bounds);
 
-  // If there's only one issue, center on it; otherwise use user location or default
-  const mapCenter = useMemo(() => {
-    const defaultCenter = { lat: 26.853, lng: 75.66 }; // Jaipur area
-    if (issues.length === 1) {
-      return {
-        lat: issues[0].location.coordinates[1],
-        lng: issues[0].location.coordinates[0]
-      };
+      if (issues.length === 1) {
+        mapRef.current.setZoom(14);
+      }
     }
-    return userLocation || defaultCenter;
+  }, [issues, isLoaded]);
+
+  const mapCenter = useMemo(() => {
+    if (userLocation && (!issues || issues.length === 0)) {
+      return userLocation;
+    }
+    return { lat: 26.8467, lng: 75.7873 };
   }, [issues, userLocation]);
 
-  // --- RENDER LOGIC ---
   if (loadError) {
-    return (
-      <div>
-        Error loading maps. Please ensure your API key is correct and enabled.
-      </div>
-    );
+    return <div>Error loading maps.</div>;
   }
 
   if (!isLoaded) {
@@ -76,77 +88,50 @@ function MapView({ issues, userLocation }) {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
-        zoom={userLocation ? 15 : 11}
+        zoom={12}
         options={{
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: false,
         }}
+        onLoad={(map) => {
+          mapRef.current = map;
+        }}
       >
-        {/* User's Location Marker */}
-        {userLocation && userLocationIcon && (
-          <MarkerF position={userLocation} icon={userLocationIcon} />
+        {userLocation && (
+          <MarkerF
+            position={userLocation}
+            icon={userLocationIcon}
+            title={"Your Location"}
+          />
         )}
 
-        {/* Issue Markers */}
-        {issues.map((issue) => (
-          <MarkerF
-            key={issue._id}
-            position={{
-              lat: issue.location.coordinates[1],
-              lng: issue.location.coordinates[0],
-            }}
-            onClick={() => handleActiveMarker(issue._id)}
-          >
-            {activeMarker === issue._id && (
-              <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
-                <div style={{ minWidth: '200px', maxWidth: '300px' }}>
-                  <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>
-                    {issue.aiCategory || 'General Issue'}
-                  </h4>
-                  <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
-                    {issue.description}
-                  </p>
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                    <span style={{
-                      padding: '2px 6px',
-                      borderRadius: '10px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase',
-                      backgroundColor: issue.status === 'Reported' ? '#e74c3c' : 
-                                     issue.status === 'Assigned' ? '#f39c12' : '#2ecc71',
-                      color: 'white'
-                    }}>
-                      {issue.status}
-                    </span>
-                    <span style={{
-                      padding: '2px 6px',
-                      borderRadius: '10px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase',
-                      backgroundColor: issue.aiSeverity === 'High' ? '#e74c3c' :
-                                     issue.aiSeverity === 'Medium' ? '#f39c12' :
-                                     issue.aiSeverity === 'Low' ? '#27ae60' : '#95a5a6',
-                      color: 'white'
-                    }}>
-                      {issue.aiSeverity || 'Pending'} Priority
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#7f8c8d' }}>
-                    <div style={{ marginBottom: '4px' }}>
-                      <strong>Reported by:</strong> {issue.reportedBy?.name || 'Anonymous'}
-                    </div>
+        {/* --- Wrap Markers in a Clusterer --- */}
+        <MarkerClustererF>
+          {(clusterer) =>
+            issues.map((issue) => (
+              <MarkerF
+                key={issue._id}
+                position={{
+                  lat: issue.location.coordinates[1],
+                  lng: issue.location.coordinates[0],
+                }}
+                clusterer={clusterer}
+                icon={issueMarkerIcon} // Use the custom icon
+                onClick={() => setActiveMarker(issue._id)}
+              >
+                {activeMarker === issue._id && (
+                  <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
                     <div>
-                      <strong>Date:</strong> {new Date(issue.createdAt).toLocaleString()}
+                      <h4>{issue.aiCategory || "Issue"}</h4>
+                      <p>{issue.description}</p>
                     </div>
-                  </div>
-                </div>
-              </InfoWindowF>
-            )}
-          </MarkerF>
-        ))}
+                  </InfoWindowF>
+                )}
+              </MarkerF>
+            ))
+          }
+        </MarkerClustererF>
       </GoogleMap>
     </div>
   );
