@@ -190,3 +190,13 @@
     justify-content: center;
   }
 }
+/* Add these new rules to your existing LandingPage.css file */
+.btn-tertiary {
+  background-color: #c78d48; /* A distinct, earthy orange */
+  color: var(--white);
+}
+
+.btn-tertiary:hover {
+  background-color: #b37a3c;
+  transform: translateY(-2px);
+}

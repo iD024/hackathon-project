@@ -34,8 +34,8 @@ function LandingPage() {
             <Link to="/login" className="btn btn-primary">
               Get Started
             </Link>
-            <Link to="/register" className="btn btn-secondary">
-              Create Account
+            <Link to="/submit-issue" className="btn btn-tertiary">
+              Report an Issue
             </Link>
           </div>
         </div>
