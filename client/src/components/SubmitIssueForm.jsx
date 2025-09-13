@@ -1,12 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createIssue } from "../services/apiService";
 import logo2 from "../assets/logo2.png";
+import { ArrowUpTrayIcon, XMarkIcon, PhotoIcon } from "@heroicons/react/24/outline";
 import "../components/css/SubmitIssueForm.css";
 
 function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Filter to only allow images and limit to 3 files
+    const imageFiles = files
+      .filter(file => file.type.startsWith('image/'))
+      .slice(0, 3 - selectedFiles.length);
+    
+    if (imageFiles.length === 0) return;
+    
+    // Create previews for the new files
+    const newPreviews = imageFiles.map(file => ({
+      id: URL.createObjectURL(file),
+      file,
+      name: file.name
+    }));
+    
+    setSelectedFiles(prev => [...prev, ...imageFiles]);
+    setFilePreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeFile = (index) => {
+    const newFiles = [...selectedFiles];
+    const newPreviews = [...filePreviews];
+    
+    // Revoke the object URL to avoid memory leaks
+    URL.revokeObjectURL(newPreviews[index].id);
+    
+    newFiles.splice(index, 1);
+    newPreviews.splice(index, 1);
+    
+    setSelectedFiles(newFiles);
+    setFilePreviews(newPreviews);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,17 +58,25 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
       description,
       location: {
         type: "Point",
-        coordinates: [location.lng, location.lat], // [longitude, latitude]
+        coordinates: [location.lng, location.lat],
       },
     };
 
-    const result = await createIssue(newIssue);
-    if (result) {
-      setTitle("");
-      setDescription("");
-      onIssueSubmitted();
+    try {
+      const result = await createIssue(newIssue, selectedFiles);
+      if (result) {
+        setTitle("");
+        setDescription("");
+        setSelectedFiles([]);
+        setFilePreviews([]);
+        onIssueSubmitted();
+      }
+    } catch (error) {
+      console.error("Error submitting issue:", error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   const getButtonText = () => {
@@ -81,6 +128,44 @@ function SubmitIssueForm({ onIssueSubmitted, location, locationError }) {
             </div>
           )}
           {locationError && <p className="location-error">⚠️ {locationError}</p>}
+        </div>
+
+        <div className="file-upload-section">
+          <label className="file-upload-label">
+            <ArrowUpTrayIcon className="upload-icon" width={18} />
+            Upload Photos (Max 3)
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              disabled={selectedFiles.length >= 3}
+            />
+          </label>
+          <span className="file-upload-hint">
+            {selectedFiles.length}/3 photos selected
+          </span>
+          
+          <div className="file-previews">
+            {filePreviews.map((preview, index) => (
+              <div key={preview.id} className="file-preview">
+                <div className="file-preview-image">
+                  <img src={preview.id} alt={preview.name} />
+                  <button 
+                    type="button" 
+                    className="remove-file-btn"
+                    onClick={() => removeFile(index)}
+                    aria-label="Remove image"
+                  >
+                    <XMarkIcon width={16} />
+                  </button>
+                </div>
+                <div className="file-name">{preview.name}</div>
+              </div>
+            ))}
+          </div>
         </div>
         
         <button 

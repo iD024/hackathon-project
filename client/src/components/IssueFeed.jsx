@@ -1,5 +1,6 @@
 import React from "react";
 import logo1 from "../assets/logo1.png";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import "../components/css/IssueFeed.css";
 
 function IssueFeed({ issues }) {
@@ -51,6 +52,26 @@ function IssueFeed({ issues }) {
             </div>
             
             <p className="issue-description">{issue.description}</p>
+            
+            {/* Display issue images if they exist */}
+            {issue.images && issue.images.length > 0 && (
+              <div className="issue-images">
+                {issue.images.slice(0, 4).map((image, index) => (
+                  <div 
+                    key={index} 
+                    className="issue-image-container"
+                    data-count={index === 3 && issue.images.length > 4 ? `+${issue.images.length - 4}` : null}
+                  >
+                    <img 
+                      src={`${image}`} 
+                      alt={`Issue ${index + 1}`} 
+                      className="issue-image"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
             
             <div className="issue-footer">
               <div className="issue-meta">

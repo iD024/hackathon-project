@@ -9,9 +9,19 @@ const axios = require("axios"); // Import the axios library
 const reportIssue = async (req, res) => {
   try {
     console.log("Request body:", req.body);
+    console.log("Request files:", req.files);
     console.log("Request user:", req.user);
     
-    const { title, description, location } = req.body;
+    // Parse the location from the form data
+    let location;
+    try {
+      location = JSON.parse(req.body.location);
+    } catch (e) {
+      console.error("Error parsing location:", e);
+      return res.status(400).json({ message: "Invalid location format." });
+    }
+    
+    const { title, description } = req.body;
 
     if (!description || !location) {
       console.log("Missing required fields - description:", !!description, "location:", !!location);
@@ -59,10 +69,14 @@ const reportIssue = async (req, res) => {
       });
     }
 
+    // Get file paths if files were uploaded
+    const images = req.files ? req.files.map(file => file.path) : [];
+
     const newIssue = await Issue.create({
       title,
       description,
       location,
+      images,
       reportedBy: req.user._id,
       aiCategory: issueCategory,
       aiSeverity: issueSeverity,

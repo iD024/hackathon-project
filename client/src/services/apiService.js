@@ -59,24 +59,37 @@ export const getIssues = async () => {
   }
 };
 
-export const createIssue = async (issueData) => {
+export const createIssue = async (issueData, files = []) => {
   const token = localStorage.getItem("civicPulseToken");
   try {
+    const formData = new FormData();
+
+    // Add issue data as JSON string
+    formData.append("title", issueData.title);
+    formData.append("description", issueData.description);
+    formData.append("location", JSON.stringify(issueData.location));
+
+    // Add files if any
+    files.forEach((file) => {
+      formData.append("photos", file);
+    });
+
     const response = await fetch(`${API_URL}/issues`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Add the token to the request
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(issueData),
+      body: formData,
     });
+
     if (!response.ok) {
-      throw new Error("Failed to create issue");
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create issue");
     }
     return await response.json();
   } catch (error) {
     console.error("Failed to create issue:", error);
-    return null;
+    throw error;
   }
 };
 
@@ -249,29 +262,6 @@ export const removeIssueFromTeam = async (data) => {
     return await response.json();
   } catch (error) {
     console.error("Failed to remove issue:", error);
-    return null;
-  }
-};
-
-export const resolveIssue = async (data) => {
-  const token = localStorage.getItem("civicPulseToken");
-  try {
-    const response = await fetch(`${API_URL}/teams/resolve-issue`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to resolve issue");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to resolve issue:", error);
-    return null;
   }
 };
 
@@ -348,6 +338,26 @@ export const getResolvedIssues = async () => {
   }
 };
 
+export const resolveIssue = async (issueId) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/issues/${issueId}/resolve`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to resolve issue");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to resolve issue:", error);
+    throw error;
+  }
+};
+
 export default {
   loginUser,
   registerUser,
@@ -366,5 +376,5 @@ export default {
   sendInvitation,
   getNotifications,
   respondToInvitation,
-  getResolvedIssues
+  getResolvedIssues,
 };

@@ -139,11 +139,6 @@ const IssuesPage = () => {
                   {issue.description || 'No description provided.'}
                 </p>
 
-                <div className="issue-actions">
-                  <Link to={`/issue/${issue._id}`} className="view-details">
-                    View Details
-                  </Link>
-                </div>
               </div>
             </div>
           ))
