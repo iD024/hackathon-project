@@ -5,15 +5,16 @@ const {
   getMyIssues,
   getResolvedIssues,
 } = require("../controllers/IssueController");
-const { protect } = require("../middlewares/authMiddleware");
-const upload = require("../middleware/upload"); // Import multer middleware
+// Import both protect and optionalProtect middlewares
+const { protect, optionalProtect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 router.route("/my-issues").get(protect, getMyIssues);
 router.route("/resolved").get(getResolvedIssues);
 
-// Apply multer middleware for file uploads on the POST route
-router.route("/").get(getIssues).post(upload.array("images", 3), reportIssue); // Allow up to 3 images
+// CORRECTED: The POST route now uses optionalProtect to handle both authenticated
+// and anonymous users. It no longer uses any file upload middleware.
+router.route("/").get(getIssues).post(optionalProtect, reportIssue);
 
 module.exports = router;

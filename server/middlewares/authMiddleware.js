@@ -42,4 +42,37 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+/**
+ * @desc    Middleware to optionally authenticate routes (attaches user if token is valid)
+ * @access  Public/Private
+ */
+const optionalProtect = async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(" ")[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from the token and attach to request
+      req.user = await User.findById(decoded.id).select("-password");
+    } catch (error) {
+      // It's okay if the token is invalid or expired, we'll just proceed without a user.
+      console.error(
+        "Token verification failed for optional auth:",
+        error.message
+      );
+      req.user = null;
+    }
+  }
+
+  next();
+};
+
+module.exports = { protect, optionalProtect };

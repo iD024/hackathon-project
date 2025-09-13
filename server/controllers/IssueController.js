@@ -1,14 +1,11 @@
 const Issue = require("../models/issue");
 const axios = require("axios");
+// The server-side uploader is no longer needed here as the client handles it.
 
-/**
- * @desc    Report a new civic issue
- * @route   POST /api/v1/issues
- * @access  Private (now protected)
- */
 const reportIssue = async (req, res) => {
   try {
-    const { title, description, location } = req.body;
+    // Destructure title, description, location, and images from the JSON body
+    const { title, description, location, images } = req.body;
 
     if (!description || !location) {
       return res
@@ -16,48 +13,16 @@ const reportIssue = async (req, res) => {
         .json({ message: "Description and location are required." });
     }
 
-    const reportedBy = req.user ? req.user._id : null;
-
-    let issueCategory = "General Inquiry";
-    let issueSeverity = "Pending";
-
-    try {
-      const triageResponse = await axios.post("http://127.0.0.1:5002/triage", {
-        description: description,
-      });
-
-      issueCategory = triageResponse.data.category;
-      issueSeverity = triageResponse.data.priority;
-    } catch (aiError) {
-      console.error("AI Triage Service Error:", aiError.message);
-    }
-
-    const parsedLocation = JSON.parse(location);
-
-    if (
-      !parsedLocation.type ||
-      parsedLocation.type !== "Point" ||
-      !parsedLocation.coordinates ||
-      !Array.isArray(parsedLocation.coordinates) ||
-      parsedLocation.coordinates.length !== 2
-    ) {
-      return res.status(400).json({
-        message:
-          "Invalid location format. Expected GeoJSON Point with coordinates array.",
-      });
-    }
-
-    // Handle file uploads from multer
-    const imageUrls = req.files ? req.files.map((file) => file.filename) : [];
+    // The client sends a fully-formed JSON object.
+    // `location` is an object, and `images` is an array of URLs.
+    // No JSON parsing or server-side upload is needed.
 
     const newIssue = await Issue.create({
       title,
       description,
-      location: parsedLocation,
-      images: imageUrls,
-      reportedBy,
-      aiCategory: issueCategory,
-      aiSeverity: issueSeverity,
+      location, // Use the location object directly
+      images: images || [], // Use the image URLs from the body, default to empty array
+      reportedBy: req.user ? req.user._id : null,
     });
 
     res.status(201).json(newIssue);
@@ -67,11 +32,6 @@ const reportIssue = async (req, res) => {
       .status(500)
       .json({ message: "Error reporting issue", error: error.message });
   }
-};
-// ... (rest of the file remains the same)
-module.exports = {
-  reportIssue,
-  //... other exports
 };
 
 /**

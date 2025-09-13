@@ -187,19 +187,19 @@
 
 /* Three or more images */
 .issue-images:has(> :nth-child(3):last-child) .issue-image-container,
-.issue-images:has(> :nth-child(n+4)) .issue-image-container {
+.issue-images:has(> :nth-child(n + 4)) .issue-image-container {
   grid-column: span 1;
   aspect-ratio: 1/1;
 }
 
 /* Show first 4 images in grid */
-.issue-image-container:nth-child(n+5) {
+.issue-image-container:nth-child(n + 5) {
   display: none;
 }
 
 /* Show image count badge if more than 4 images */
 .issue-images:has(> :nth-child(5)) .issue-image-container:nth-child(4)::after {
-  content: '+' attr(data-count);
+  content: "+" attr(data-count);
   position: absolute;
   top: 0;
   left: 0;
@@ -328,4 +328,40 @@
 .issue-description,
 .issue-title {
   color: #333 !important;
+}
+
+/* ... all existing styles ... */
+
+/* Image Viewer Modal Styles */
+.image-viewer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  cursor: pointer;
+}
+
+.image-viewer-content {
+  position: relative;
+  max-width: 80vw;
+  max-height: 80vh;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: default;
+}
+
+.image-viewer-content img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
