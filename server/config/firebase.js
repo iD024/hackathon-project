@@ -5,6 +5,8 @@ const path = require("path");
 // This is the most reliable way to load your credentials on the server.
 const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
 
+console.log("Vite Env Variables:", import.meta.env);
+
 let serviceAccount;
 try {
   // --- Step 2: Load the entire JSON file ---
