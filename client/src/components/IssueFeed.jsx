@@ -8,13 +8,12 @@ function IssueFeed({ issues }) {
 
   if (!issues || issues.length === 0) {
     return (
-      <div className="issue-feed-container card-purple">
+      <div className="issue-feed-container">
         <div className="feed-header">
-          <img src={logo1} alt="Issue Feed" className="feed-icon" />
           <h2>Issue Feed</h2>
         </div>
         <div className="empty-state">
-          <div className="empty-icon">🌟</div>
+          <img src={logo1} alt="Civic Pulse" />
           <p>No issues reported yet. Be the first to make a difference!</p>
         </div>
       </div>
@@ -23,9 +22,8 @@ function IssueFeed({ issues }) {
 
   return (
     <>
-      <div className="issue-feed-container card-purple">
+      <div className="issue-feed-container">
         <div className="feed-header">
-          <img src={logo1} alt="Issue Feed" className="feed-icon" />
           <h2>Issue Feed</h2>
           <div className="issue-count">
             {issues.length} {issues.length === 1 ? "Issue" : "Issues"}

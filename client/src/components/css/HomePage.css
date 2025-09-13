@@ -1,8 +1,9 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  flex-basis: 40%;
-  max-height: calc(100vh - 100px);
+  flex-basis: 450px; /* Give the sidebar a fixed width */
+  flex-shrink: 0; /* Prevent the sidebar from shrinking */
+  height: calc(100vh - 130px); /* Match map height */
   gap: 15px;
 }
 
@@ -14,10 +15,23 @@
 .report-issue-prompt {
   padding: 1rem;
   text-align: center;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .btn-report {
   width: 100%;
   font-size: 1.1rem;
   padding: 1rem;
+  background-color: var(--olive-green-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-report:hover {
+  background-color: var(--olive-green-light);
 }
