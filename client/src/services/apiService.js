@@ -77,3 +77,134 @@ export const createIssue = async (issueData) => {
     return null;
   }
 };
+
+export const getUsers = async () => {
+  try {
+    const response = await fetch(`${API_URL}/users`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    return [];
+  }
+};
+
+export const getTeams = async () => {
+  try {
+    const response = await fetch(`${API_URL}/teams`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch teams:", error);
+    return [];
+  }
+};
+
+export const createTeam = async (teamData) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(teamData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create team");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to create team:", error);
+    return null;
+  }
+};
+
+export const addMemberToTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/members`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add member to team");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to add member to team:", error);
+    return null;
+  }
+};
+
+export const removeMemberFromTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/members/remove`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to remove member from team");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to remove member from team:", error);
+    return null;
+  }
+};
+
+export const leaveTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/leave`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to leave team");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to leave team:", error);
+    return null;
+  }
+};
+
+export const disbandTeam = async (data) => {
+  const token = localStorage.getItem("civicPulseToken");
+  try {
+    const response = await fetch(`${API_URL}/teams/disband`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to disband team");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to disband team:", error);
+    return null;
+  }
+};
