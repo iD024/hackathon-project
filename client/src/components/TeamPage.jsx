@@ -13,6 +13,7 @@ import {
   sendInvitation,
 } from "../services/apiService";
 import "./css/TeamPage.css";
+import MapView from "./MapView/MapView";
 import { jwtDecode } from "jwt-decode";
 
 const TeamPage = () => {
@@ -21,6 +22,7 @@ const TeamPage = () => {
   const [teamName, setTeamName] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [issues, setIssues] = useState([]);
+  const [selectedIssue, setSelectedIssue] = useState(null);
 
   const fetchAllData = async () => {
     const token = localStorage.getItem("civicPulseToken");
@@ -235,22 +237,51 @@ const TeamPage = () => {
       <div className="available-issues">
         <h2>Available Issues</h2>
         <ul>
-          {issues.map((issue) => (
-            <li key={issue._id}>
-              {issue.title}
-              {userTeam &&
-                userTeam.leader === currentUser &&
-                !userTeam.issue && (
-                  <button
-                    onClick={() => handleAssignIssue(userTeam._id, issue._id)}
-                  >
-                    Assign
-                  </button>
-                )}
-            </li>
-          ))}
+          {issues
+            .filter((issue) => !issue.assignedTo)
+            .map((issue) => (
+              <li key={issue._id} className="issue-item">
+                <div className="issue-content">
+                  <span className="issue-title">{issue.title}</span>
+                  <div className="issue-actions">
+                    <button onClick={() => setSelectedIssue(issue)} className="view-details-btn">
+                      View Details
+                    </button>
+                    {userTeam &&
+                      userTeam.leader === currentUser &&
+                      !userTeam.issue && (
+                        <button
+                          onClick={() => handleAssignIssue(userTeam._id, issue._id)}
+                          className="assign-btn"
+                        >
+                          Assign
+                        </button>
+                      )}
+                  </div>
+                </div>
+              </li>
+            ))}
         </ul>
       </div>
+      {selectedIssue && (
+        <div className="issue-details-modal">
+          <div className="issue-details-content">
+            <span className="close" onClick={() => setSelectedIssue(null)}>
+              &times;
+            </span>
+            <h2>{selectedIssue.title}</h2>
+            <p>
+              <strong>Description:</strong> {selectedIssue.description}
+            </p>
+            <p>
+              <strong>Created by:</strong> {selectedIssue.createdBy?.name}
+            </p>
+            <div className="map-container">
+              <MapView issues={[selectedIssue]} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
